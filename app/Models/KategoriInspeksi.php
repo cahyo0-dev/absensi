@@ -16,7 +16,7 @@ class KategoriInspeksi extends Model
         'deskripsi',
     ];
 
-    public function pertanyaans()
+    public function pertanyaan()
     {
         return $this->hasMany(Pertanyaan::class, 'kategori_id');
     }

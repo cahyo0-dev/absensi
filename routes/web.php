@@ -8,6 +8,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\PengawasMiddleware;
 use App\Http\Controllers\PertanyaanController;
+use App\Http\Controllers\InspeksiController;
 
 // Public routes
 Route::get('/', function () {
@@ -25,11 +26,12 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Pengawas routes
-Route::middleware(['auth', PengawasMiddleware::class])->group(function () {
-    Route::get('/pengawas/dashboard', [PengawasController::class, 'dashboard'])->name('pengawas.dashboard');
-    Route::get('/pengawas/inspeksi', [PengawasController::class, 'inspeksi'])->name('pengawas.inspeksi');
-    Route::post('/pengawas/inspeksi', [PengawasController::class, 'storeInspeksi'])->name('pengawas.storeInspeksi');
-    Route::get('/pengawas/laporan', [PengawasController::class, 'laporan'])->name('pengawas.laporan');
+Route::prefix('pengawas')->name('pengawas.')->middleware('auth')->group(function () {
+    Route::get('/dashboard', [InspeksiController::class, 'dashboard'])->name('dashboard');
+    Route::get('/inspeksi', [InspeksiController::class, 'create'])->name('inspeksi');
+    Route::post('/inspeksi', [InspeksiController::class, 'store'])->name('storeInspeksi');
+    Route::get('/laporan', [InspeksiController::class, 'laporan'])->name('laporan');
+    Route::get('/laporan/{id}', [InspeksiController::class, 'show'])->name('laporan.detail');
 });
 
 // Admin routes
@@ -39,6 +41,22 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/admin/laporan', [AdminController::class, 'laporan'])->name('admin.laporan');
     Route::get('/admin/export', [AdminController::class, 'export'])->name('admin.export');
 });
+
 //pertanyaan routes
-// routes/web.php
 Route::get('/pertanyaan/{kategoriId}', [PertanyaanController::class, 'getByKategori'])->name('pertanyaan.getByKategori');
+
+// Export routes
+Route::get('/pengawas/inspeksi/{id}/export', [InspeksiController::class, 'export'])
+    ->middleware('auth')
+    ->name('inspeksi.export');
+Route::get('/pengawas/inspeksi/export-all', [InspeksiController::class, 'exportAll'])
+    ->middleware('auth')
+    ->name('inspeksi.export.all');
+// Tambahkan route untuk export rentang waktu
+Route::post('/pengawas/inspeksi/export-range', [InspeksiController::class, 'exportRange'])
+    ->middleware('auth')
+    ->name('inspeksi.export.range');
+// Route untuk preset waktu
+Route::get('/pengawas/inspeksi/export-preset/{preset}', [InspeksiController::class, 'exportPreset'])
+    ->middleware('auth')
+    ->name('inspeksi.export.preset');

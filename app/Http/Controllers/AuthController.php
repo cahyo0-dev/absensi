@@ -49,53 +49,46 @@ class AuthController extends Controller
     }
 
     public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'nip' => 'required|unique:users',
-            'name' => 'required',
-            'jabatan' => 'required',
-            'unit_kerja' => 'required',
-            'provinsi' => 'required',
-            'role' => 'required|in:admin,pengawas,pegawai',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'nip' => 'required|unique:users',
+        'name' => 'required|string|max:255',
+        'jabatan' => 'required|string|max:255',
+        'unit_kerja' => 'required|string|max:255',
+        'provinsi' => 'required|string|max:255',
+        'role' => 'required|in:admin,pengawas', // Hanya dua role
+        'email' => 'required|email|unique:users',
+        'password' => 'required|min:6|confirmed',
+    ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        User::create([
-            'nip' => $request->nip,
-            'name' => $request->name,
-            'jabatan' => $request->jabatan,
-            'unit_kerja' => $request->unit_kerja,
-            'provinsi' => $request->provinsi,
-            'role' => $request->role,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        // Auto login setelah register
-        if (Auth::attempt($request->only('email', 'password'))) {
-            $request->session()->regenerate();
-            
-            $user = Auth::user();
-            
-            // Redirect berdasarkan role
-            if ($user->role === 'admin') {
-                return redirect()->route('admin.dashboard')->with('success', 'Registrasi berhasil!');
-            } elseif ($user->role === 'pengawas') {
-                return redirect()->route('pengawas.dashboard')->with('success', 'Registrasi berhasil!');
-            }
-            
-            return redirect()->route('absensi.index')->with('success', 'Registrasi berhasil!');
-        }
-
-        return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
     }
+
+    // Create user
+    $user = User::create([
+        'nip' => $request->nip,
+        'name' => $request->name,
+        'jabatan' => $request->jabatan,
+        'unit_kerja' => $request->unit_kerja,
+        'provinsi' => $request->provinsi,
+        'role' => $request->role,
+        'email' => $request->email,
+        'password' => bcrypt($request->password),
+    ]);
+
+    // Login user setelah registrasi
+    auth()->login($user);
+
+    // Redirect berdasarkan role
+    if ($user->isAdmin()) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    return redirect()->route('pengawas.dashboard');
+}
 
     public function logout(Request $request)
     {

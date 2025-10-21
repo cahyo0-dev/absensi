@@ -34,18 +34,25 @@ class User extends Authenticatable
         ];
     }
 
-    public function isAdmin(): bool
+    // Helper methods untuk check role
+    public function isAdmin()
     {
         return $this->role === 'admin';
     }
 
-    public function isPengawas(): bool
+    public function isPengawas()
     {
         return $this->role === 'pengawas';
     }
 
-    public function isPegawai(): bool
+    // Scope untuk filter role
+    public function scopeAdmin($query)
     {
-        return $this->role === 'pegawai';
+        return $query->where('role', 'admin');
+    }
+
+    public function scopePengawas($query)
+    {
+        return $query->where('role', 'pengawas');
     }
 }

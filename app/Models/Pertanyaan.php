@@ -22,8 +22,8 @@ class Pertanyaan extends Model
         return $this->belongsTo(KategoriInspeksi::class, 'kategori_id');
     }
 
-    public function jawabans()
+    public function jawaban()
     {
-        return $this->hasMany(JawabanInspeksi::class, 'pertanyaan_id');
+        return $this->hasMany(Jawaban::class, 'pertanyaan_id');
     }
 }

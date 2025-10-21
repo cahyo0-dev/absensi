@@ -79,6 +79,79 @@
                     </div>
                 @endif
 
+                <!-- Export Section -->
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900">Export Data</h2>
+                            <p class="text-gray-600 text-sm">Download laporan dalam format Excel</p>
+                        </div>
+                    </div>
+
+                    <!-- Export Preset Cepat -->
+                    <div class="mb-6">
+                        <h3 class="text-md font-medium text-gray-900 mb-3">Export Cepat</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <a href="{{ route('inspeksi.export.preset', 'week') }}"
+                                class="inline-flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-150 text-sm"
+                                onclick="showExportLoading(this)">
+                                <i class="fas fa-calendar-week mr-2"></i>
+                                1 Minggu
+                            </a>
+                            <a href="{{ route('inspeksi.export.preset', 'month') }}"
+                                class="inline-flex items-center justify-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-150 text-sm"
+                                onclick="showExportLoading(this)">
+                                <i class="fas fa-calendar-alt mr-2"></i>
+                                1 Bulan
+                            </a>
+                            <a href="{{ route('inspeksi.export.preset', 'year') }}"
+                                class="inline-flex items-center justify-center px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition duration-150 text-sm"
+                                onclick="showExportLoading(this)">
+                                <i class="fas fa-calendar mr-2"></i>
+                                1 Tahun
+                            </a>
+                            <a href="{{ route('inspeksi.export.all') }}"
+                                class="inline-flex items-center justify-center px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition duration-150 text-sm"
+                                onclick="showExportLoading(this)">
+                                <i class="fas fa-database mr-2"></i>
+                                Semua Data
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Export Rentang Waktu Kustom -->
+                    <div class="border-t pt-4">
+                        <h3 class="text-md font-medium text-gray-900 mb-3">Export Rentang Waktu Kustom</h3>
+                        <form id="exportRangeForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                            @csrf
+                            <div>
+                                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">
+                                    <i class="fas fa-calendar-plus mr-1"></i>Tanggal Mulai
+                                </label>
+                                <input type="date" id="start_date" name="start_date"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required>
+                            </div>
+                            <div>
+                                <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">
+                                    <i class="fas fa-calendar-minus mr-1"></i>Tanggal Akhir
+                                </label>
+                                <input type="date" id="end_date" name="end_date"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required>
+                            </div>
+                            <div>
+                                <button type="button" onclick="exportCustomRange()"
+                                    class="w-full inline-flex items-center justify-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-150">
+                                    <i class="fas fa-file-excel mr-2"></i>
+                                    Export Rentang
+                                </button>
+                            </div>
+                        </form>
+                        <div id="exportError" class="text-red-500 text-sm mt-2 hidden"></div>
+                    </div>
+                </div>
+
                 <!-- Statistik Ringkas -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div class="bg-white rounded-lg shadow p-6">
@@ -193,26 +266,26 @@
                                         <tr class="hover:bg-gray-50 transition duration-150">
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900">
-                                                    {{ $inspeksi->created_at->format('d/m/Y') }}
+                                                    {{ $inspeksi->created_at->timezone('Asia/Kuala_Lumpur')->format('d/m/Y') }}
                                                 </div>
                                                 <div class="text-sm text-gray-500">
-                                                    {{ $inspeksi->created_at->format('H:i') }}
+                                                    {{ $inspeksi->created_at->timezone('Asia/Kuala_Lumpur')->format('H:i') }}
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span
                                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                    {{ $inspeksi->kategori->nama }}
+                                                    {{ $inspeksi->kategori->nama ?? 'Semua Kategori' }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 <div class="flex items-center">
                                                     <i class="fas fa-list-ol mr-2 text-gray-400"></i>
-                                                    {{ $inspeksi->jawabans->count() }} pertanyaan
+                                                    {{ $inspeksi->jawaban->count() ?? 0 }} pertanyaan
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                @if ($inspeksi->tanda_tangan)
+                                                @if ($inspeksi->tanda_tangan ?? false)
                                                     <img src="{{ $inspeksi->tanda_tangan }}" alt="Tanda Tangan"
                                                         class="h-10 w-32 object-contain border rounded cursor-pointer"
                                                         onclick="showSignature('{{ $inspeksi->tanda_tangan }}')">
@@ -226,7 +299,7 @@
                                                     <i class="fas fa-eye mr-1"></i>
                                                     Detail
                                                 </button>
-                                                <button onclick="exportInspeksi({{ $inspeksi->id }})"
+                                                <button onclick="exportInspeksi({{ $inspeksi->id }}, this)"
                                                     class="text-green-600 hover:text-green-900 flex items-center transition duration-150">
                                                     <i class="fas fa-download mr-1"></i>
                                                     Export
@@ -348,20 +421,36 @@
             `;
             document.getElementById('detailModal').classList.remove('hidden');
 
-            fetch(`/api/inspeksi/${inspeksiId}`)
+            // Tambahkan header untuk meminta JSON
+            fetch(`/pengawas/laporan/${inspeksiId}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                        throw new Error('Network response was not ok: ' + response.status);
                     }
                     return response.json();
                 })
                 .then(data => {
+                    // Cek jika ada error dari server
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    const date = new Date(data.created_at);
+                    const kualaLumpurDate = new Date(date.toLocaleString("en-US", {
+                        timeZone: "Asia/Kuala_Lumpur"
+                    }));
+
                     let html = `
                         <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <p class="text-sm text-gray-500"><i class="fas fa-calendar mr-2"></i>Tanggal</p>
-                                <p class="font-medium">${new Date(data.created_at).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                                <p class="text-sm text-gray-500">${new Date(data.created_at).toLocaleTimeString('id-ID')}</p>
+                                <p class="font-medium">${kualaLumpurDate.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                <p class="text-sm text-gray-500">${kualaLumpurDate.toLocaleTimeString('id-ID')}</p>
                             </div>
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <p class="text-sm text-gray-500"><i class="fas fa-list mr-2"></i>Kategori</p>
@@ -369,63 +458,105 @@
                                 <p class="text-sm text-gray-500">${data.kategori.deskripsi || 'Tidak ada deskripsi'}</p>
                             </div>
                         </div>
-                        
-                        <div class="border-t pt-4 mb-4">
-                            <h4 class="font-semibold mb-3 text-gray-800 flex items-center">
-                                <i class="fas fa-tasks mr-2 text-blue-500"></i>
-                                Hasil Jawaban (${data.jawabans ? data.jawabans.length : 0} pertanyaan)
-                            </h4>
-                            <div class="space-y-3 max-h-60 overflow-y-auto">
-                    `;
+
+                    
+                    <div class="border-t pt-4 mb-4">
+                        <h4 class="font-semibold mb-3 text-gray-800 flex items-center">
+                            <i class="fas fa-tasks mr-2 text-blue-500"></i>
+                            Hasil Jawaban (${data.jawabans ? data.jawabans.length : 0} pertanyaan)
+                        </h4>
+                        <div class="space-y-3 max-h-60 overflow-y-auto">
+                `;
 
                     if (data.jawabans && data.jawabans.length > 0) {
                         data.jawabans.forEach(jawaban => {
                             const isYa = jawaban.jawaban === 'Ya';
+                            const isTidak = jawaban.jawaban === 'Tidak';
+                            let bgColor = 'bg-gray-100';
+                            let textColor = 'text-gray-800';
+                            let borderColor = 'border-gray-200';
+                            let icon = 'fa-question';
+
+                            if (isYa) {
+                                bgColor = 'bg-green-100';
+                                textColor = 'text-green-800';
+                                borderColor = 'border-green-200';
+                                icon = 'fa-check';
+                            } else if (isTidak) {
+                                bgColor = 'bg-red-100';
+                                textColor = 'text-red-800';
+                                borderColor = 'border-red-200';
+                                icon = 'fa-times';
+                            }
+
                             html += `
-                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border">
-                                    <span class="text-sm flex-1">${jawaban.pertanyaan.pertanyaan}</span>
-                                    <span class="px-3 py-1 rounded-full text-xs font-medium ${isYa ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'} ml-3 whitespace-nowrap">
-                                        <i class="fas ${isYa ? 'fa-check' : 'fa-times'} mr-1"></i>
-                                        ${jawaban.jawaban}
-                                    </span>
-                                </div>
-                            `;
+                            <div class="flex justify-between items-center p-3 ${bgColor} rounded-lg border ${borderColor}">
+                                <span class="text-sm flex-1 ${textColor}">${jawaban.pertanyaan.pertanyaan}</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-medium ${bgColor} ${textColor} border ${borderColor} ml-3 whitespace-nowrap">
+                                    <i class="fas ${icon} mr-1"></i>
+                                    ${jawaban.jawaban}
+                                </span>
+                            </div>
+                        `;
                         });
                     } else {
                         html += `
-                            <div class="text-center py-4 text-gray-500">
-                                <i class="fas fa-exclamation-circle text-xl mb-2"></i>
-                                <p>Tidak ada data jawaban</p>
-                            </div>
-                        `;
+                        <div class="text-center py-4 text-gray-500">
+                            <i class="fas fa-exclamation-circle text-xl mb-2"></i>
+                            <p>Tidak ada data jawaban</p>
+                        </div>
+                    `;
                     }
 
                     html += `
-                            </div>
                         </div>
-                        <div class="border-t pt-4 mt-4">
-                            <h4 class="font-semibold mb-2 text-gray-800 flex items-center">
-                                <i class="fas fa-signature mr-2 text-blue-500"></i>
-                                Tanda Tangan Pengawas
-                            </h4>
-                            ${data.tanda_tangan ? 
-                                `<img src="${data.tanda_tangan}" alt="Tanda Tangan" class="h-24 border rounded-lg mx-auto cursor-pointer" onclick="showSignature('${data.tanda_tangan}')">` : 
-                                '<p class="text-gray-500 text-center py-4">Tidak ada tanda tangan</p>'
-                            }
-                        </div>
-                    `;
+                    </div>
+                    <div class="border-t pt-4 mt-4">
+                        <h4 class="font-semibold mb-2 text-gray-800 flex items-center">
+                            <i class="fas fa-signature mr-2 text-blue-500"></i>
+                            Tanda Tangan Pengawas
+                        </h4>
+                        ${data.tanda_tangan ? 
+                            `<img src="${data.tanda_tangan}" alt="Tanda Tangan" class="h-24 border rounded-lg mx-auto cursor-pointer" onclick="showSignature('${data.tanda_tangan}')">` : 
+                            '<p class="text-gray-500 text-center py-4">Tidak ada tanda tangan</p>'
+                        }
+                    </div>
+                    
+                    ${data.lokasi ? `
+                                                    <div class="border-t pt-4 mt-4">
+                                                        <h4 class="font-semibold mb-2 text-gray-800 flex items-center">
+                                                            <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i>
+                                                            Lokasi
+                                                        </h4>
+                                                        <p class="text-gray-700">${data.lokasi}</p>
+                                                    </div>
+                                                    ` : ''}
+                    
+                    ${data.keterangan ? `
+                                                    <div class="border-t pt-4 mt-4">
+                                                        <h4 class="font-semibold mb-2 text-gray-800 flex items-center">
+                                                            <i class="fas fa-sticky-note mr-2 text-blue-500"></i>
+                                                            Keterangan
+                                                        </h4>
+                                                        <p class="text-gray-700">${data.keterangan}</p>
+                                                    </div>
+                                                    ` : ''}
+                `;
 
                     document.getElementById('modalContent').innerHTML = html;
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     document.getElementById('modalContent').innerHTML = `
-                        <div class="text-center py-8 text-red-500">
-                            <i class="fas fa-exclamation-triangle text-3xl mb-3"></i>
-                            <p>Terjadi kesalahan saat memuat data.</p>
-                            <p class="text-sm text-gray-500 mt-2">${error.message}</p>
-                        </div>
-                    `;
+                    <div class="text-center py-8 text-red-500">
+                        <i class="fas fa-exclamation-triangle text-3xl mb-3"></i>
+                        <p>Terjadi kesalahan saat memuat data.</p>
+                        <p class="text-sm text-gray-500 mt-2">${error.message}</p>
+                        <button onclick="closeDetail()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            Tutup
+                        </button>
+                    </div>
+                `;
                 });
         }
 
@@ -444,9 +575,138 @@
             document.getElementById('signatureModal').classList.add('hidden');
         }
 
-        function exportInspeksi(inspeksiId) {
-            // Simulate export functionality
-            alert(`Fitur export untuk inspeksi #${inspeksiId} akan segera tersedia!`);
+        function exportInspeksi(inspeksiId, button) {
+            // Show loading
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Exporting...';
+            button.disabled = true;
+
+            // Create download link
+            const link = document.createElement('a');
+            link.href = `/pengawas/inspeksi/${inspeksiId}/export`;
+            link.target = '_blank';
+            link.download = `inspeksi-${inspeksiId}.xlsx`;
+
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Restore button text after a delay
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
+        }
+
+        function exportCustomRange() {
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+            const errorDiv = document.getElementById('exportError');
+            const button = event.target;
+
+            // Validasi
+            if (!startDate || !endDate) {
+                errorDiv.textContent = 'Harap pilih tanggal mulai dan tanggal akhir.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (new Date(startDate) > new Date(endDate)) {
+                errorDiv.textContent = 'Tanggal mulai tidak boleh lebih besar dari tanggal akhir.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            errorDiv.classList.add('hidden');
+
+            // Show loading
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
+            button.disabled = true;
+
+            // Create form data
+            const formData = new FormData();
+            formData.append('_token', document.querySelector('input[name="_token"]').value);
+            formData.append('start_date', startDate);
+            formData.append('end_date', endDate);
+
+            // Send request
+            fetch('{{ route('inspeksi.export.range') }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Create download link
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `inspeksi-${startDate}-hingga-${endDate}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+
+                    // Show success message
+                    showTempMessage('Export berhasil! File sedang didownload.', 'success');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showTempMessage('Terjadi kesalahan saat export.', 'error');
+                })
+                .finally(() => {
+                    // Restore button
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                });
+        }
+
+        function showTempMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            messageDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(messageDiv);
+
+            // Remove message after 3 seconds
+            setTimeout(() => {
+                document.body.removeChild(messageDiv);
+            }, 3000);
+        }
+
+        // Set default dates (last 30 days)
+        document.addEventListener('DOMContentLoaded', function() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+
+            document.getElementById('end_date').value = endDate.toISOString().split('T')[0];
+            document.getElementById('start_date').value = startDate.toISOString().split('T')[0];
+        });
+
+        function showExportLoading(button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyiapkan Excel...';
+            button.disabled = true;
+
+            // Reset button after 3 seconds (as fallback)
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 3000);
         }
 
         // Close modals when clicking outside
