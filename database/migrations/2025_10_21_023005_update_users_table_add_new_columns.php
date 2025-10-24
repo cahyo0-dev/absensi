@@ -10,11 +10,6 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Tambahkan kolom baru
-            $table->string('nip')->unique()->after('id');
-            $table->string('jabatan')->after('name');
-            $table->string('unit_kerja')->after('jabatan');
-            $table->string('provinsi')->after('unit_kerja');
-            $table->enum('role', ['admin', 'pengawas'])->default('pengawas')->after('provinsi');
             
             // Hapus kolom email_verified_at jika tidak diperlukan
             // $table->dropColumn('email_verified_at');

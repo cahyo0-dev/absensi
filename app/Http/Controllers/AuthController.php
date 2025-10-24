@@ -24,27 +24,24 @@ class AuthController extends Controller
     {
         $credentials = $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
         ]);
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            
-            $user = Auth::user();
-            
+
             // Redirect berdasarkan role
-            if ($user->role === 'admin') {
-                return redirect()->route('admin.dashboard');
-            } elseif ($user->role === 'pengawas') {
+            if (Auth::user()->isPengawas()) {
                 return redirect()->route('pengawas.dashboard');
+            } elseif (Auth::user()->isAdmin()) {
+                return redirect()->route('admin.dashboard');
             }
-            
-            // Untuk pegawai, redirect ke halaman absensi
+
             return redirect()->route('absensi.index');
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
+            'email' => 'The provided credentials do not match our records.',
         ]);
     }
 
@@ -56,7 +53,7 @@ class AuthController extends Controller
         'jabatan' => 'required|string|max:255',
         'unit_kerja' => 'required|string|max:255',
         'provinsi' => 'required|string|max:255',
-        'role' => 'required|in:admin,pengawas', // Hanya dua role
+        'role' => 'required|in:admin,pengawas',
         'email' => 'required|email|unique:users',
         'password' => 'required|min:6|confirmed',
     ]);

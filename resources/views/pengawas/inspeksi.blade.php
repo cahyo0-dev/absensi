@@ -104,7 +104,7 @@
             <div class="p-6">
                 <div class="max-w-6xl mx-auto">
                     <!-- Alert Info -->
-                    @if ($inspeksiHariIni)
+                    @if ($sudahInspeksiHariIni)
                         <div
                             class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6 flex items-center">
                             <i class="fas fa-exclamation-triangle mr-2"></i>
@@ -259,8 +259,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             // State management
             const state = {
-                jawaban: {}, // { kategoriId: { pertanyaanId: jawaban } }
-                kategoriStatus: {}, // { kategoriId: boolean (completed or not) }
+                jawaban: {},
+                kategoriStatus: {},
                 currentTab: null
             };
 

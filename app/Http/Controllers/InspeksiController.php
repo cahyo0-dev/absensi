@@ -8,27 +8,53 @@ use App\Exports\InspeksiRangeExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\KategoriInspeksi;
 use App\Models\Inspeksi;
+use App\Models\User;
+use App\Models\Pertanyaan;
 use App\Models\Jawaban;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Carbon\Carbon;
 
 class InspeksiController extends Controller
 {
     /**
-     * Menampilkan dashboard pengawas
-     */
+ * Menampilkan dashboard pengawas
+ */
     public function dashboard()
     {
-        $inspeksiHariIni = Inspeksi::where('pengawas_id', Auth::id())
-            ->whereDate('created_at', today())
-            ->count();
+        Log::info('=== DASHBOARD DATA ===');
+        
+        // Data dengan logging untuk debugging - update query untuk menggunakan tanggal
+        $inspeksiHariIni = Inspeksi::whereDate('tanggal', today())->first();
+        $totalInspeksi = Inspeksi::count();
+        $inspeksiBulanIni = Inspeksi::whereMonth('tanggal', now()->month)->count();
+        $totalPengawas = \App\Models\User::where('role', 'pengawas')->count();
+        
+        // Tambahkan variabel inspektorHariIni
+        $inspektorHariIni = null;
+        if ($inspeksiHariIni) {
+            $inspektorHariIni = $inspeksiHariIni->pengawas;
+        }
+        
+        Log::info('Dashboard Data:', [
+            'inspeksi_hari_ini' => $inspeksiHariIni ? $inspeksiHariIni->id : 'Tidak ada',
+            'total_inspeksi' => $totalInspeksi,
+            'inspeksi_bulan_ini' => $inspeksiBulanIni,
+            'total_pengawas' => $totalPengawas,
+            'inspektor_hari_ini' => $inspektorHariIni ? $inspektorHariIni->name : 'Tidak ada'
+        ]);
 
-        $totalInspeksi = Inspeksi::where('pengawas_id', Auth::id())
-            ->count();
-
-        return view('pengawas.dashboard', compact('inspeksiHariIni', 'totalInspeksi'));
+        return view('pengawas.dashboard', compact(
+            'inspeksiHariIni',
+            'totalInspeksi',
+            'inspeksiBulanIni',
+            'totalPengawas',
+            'inspektorHariIni'
+        ));
     }
 
     /**
@@ -36,12 +62,26 @@ class InspeksiController extends Controller
      */
     public function create()
     {
-        $kategories = KategoriInspeksi::all();
-        $inspeksiHariIni = Inspeksi::where('pengawas_id', Auth::id())
-            ->whereDate('created_at', today())
-            ->exists();
+        // Cek apakah sudah ada inspeksi hari ini (GLOBAL - 1x/hari untuk semua pengawas)
+        $sudahInspeksiHariIni = Inspeksi::sudahInspeksiHariIni();
+        $inspeksiDataHariIni = null;
+        $inspektorHariIni = null;
 
-        return view('pengawas.inspeksi', compact('kategories', 'inspeksiHariIni'));
+        if ($sudahInspeksiHariIni) {
+            $inspeksiDataHariIni = Inspeksi::getInspeksiHariIni();
+            $inspektorHariIni = $inspeksiDataHariIni->pengawas ?? null;
+        }
+
+        $kategories = KategoriInspeksi::all();
+        $totalPengawas = User::totalPengawas();
+
+        return view('pengawas.inspeksi', compact(
+            'kategories', 
+            'sudahInspeksiHariIni',
+            'inspeksiDataHariIni',
+            'inspektorHariIni',
+            'totalPengawas'
+        ));
     }
 
     /**
@@ -49,49 +89,90 @@ class InspeksiController extends Controller
      */
     public function store(Request $request)
     {
+        Log::info('=== MEMULAI PROSES SIMPAN INSPEKSI ===');
+        Log::info('Data request:', $request->all());
+        
+        // Validasi: cek apakah sudah ada inspeksi hari ini (GLOBAL)
+        if (Inspeksi::sudahInspeksiHariIni()) {
+            Log::warning('Inspeksi hari ini sudah ada, tidak bisa simpan');
+            return redirect()->back()
+                ->with('error', 'Maaf, inspeksi hari ini sudah dilakukan oleh pengawas lain. Sistem hanya mengizinkan 1 inspeksi per hari.')
+                ->withInput();
+        }
+
+        Log::info('Belum ada inspeksi hari ini, lanjut validasi');
+
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'jawaban' => 'required|array',
+            'jawaban.*' => 'required|array',
+            'jawaban.*.*' => 'required|in:Ya,Tidak',
+            'tanda_tangan' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            Log::error('Validasi gagal:', $validator->errors()->toArray());
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        Log::info('Validasi berhasil, data jawaban:', $request->jawaban);
+
         try {
-            $validated = $request->validate([
-                'tanda_tangan' => 'required|string',
-                'jawaban' => 'required|array',
-                'jawaban.*' => 'required|array',
-                'jawaban.*.*' => 'required|in:Ya,Tidak'
-            ]);
+            DB::beginTransaction();
+            Log::info('Transaction dimulai');
 
-            // Check if already did inspection today
-            $inspeksiHariIni = Inspeksi::where('pengawas_id', Auth::id())
-                ->whereDate('created_at', today())
-                ->exists();
-
-            if ($inspeksiHariIni) {
-                return redirect()->back()
-                    ->with('error', 'Anda sudah melakukan inspeksi hari ini. Hanya boleh 1 inspeksi per hari.')
-                    ->withInput();
-            }
-
-            // Create inspection record
+            // Create inspeksi - SESUAIKAN DENGAN STRUKTUR TABEL
             $inspeksi = Inspeksi::create([
                 'pengawas_id' => Auth::id(),
-                'tanda_tangan' => $validated['tanda_tangan'],
-                'tanggal' => now()->toDateString(),
+                'kategori_id' => 1, // Ubah dari kategori_inspeksi_id menjadi kategori_id
+                'tanda_tangan' => $request->tanda_tangan,
+                'tanggal' => now(), // Tambahkan field tanggal
+                // Hapus field yang tidak ada di tabel: keterangan, status
             ]);
 
-            // Save answers for all categories
-            foreach ($validated['jawaban'] as $kategoriId => $jawabanKategori) {
-                foreach ($jawabanKategori as $pertanyaanId => $jawaban) {
-                    Jawaban::create([
+            Log::info('Inspeksi created dengan ID: ' . $inspeksi->id);
+
+            // Simpan jawaban dengan logging detail
+            $totalJawaban = 0;
+            $jawabanDetails = [];
+            
+            foreach ($request->jawaban as $kategoriId => $pertanyaanJawaban) {
+                foreach ($pertanyaanJawaban as $pertanyaanId => $jawaban) {
+                    Log::info("Menyimpan jawaban - Pertanyaan ID: $pertanyaanId, Jawaban: $jawaban");
+                    
+                    $jawabanRecord = Jawaban::create([
                         'inspeksi_id' => $inspeksi->id,
                         'pertanyaan_id' => $pertanyaanId,
-                        'jawaban' => $jawaban,
+                        'jawaban' => $jawaban
                     ]);
+                    
+                    $jawabanDetails[] = [
+                        'id' => $jawabanRecord->id,
+                        'pertanyaan_id' => $pertanyaanId,
+                        'jawaban' => $jawaban
+                    ];
+                    $totalJawaban++;
                 }
             }
 
+            Log::info('Jawaban disimpan: ' . $totalJawaban . ' jawaban', $jawabanDetails);
+            Log::info('Semua jawaban untuk inspeksi ini:', Jawaban::where('inspeksi_id', $inspeksi->id)->get()->toArray());
+
+            DB::commit();
+            Log::info('Transaction committed');
+
             return redirect()->route('pengawas.laporan')
-                ->with('success', 'Inspeksi untuk semua kategori berhasil disimpan!');
+                ->with('success', 'Inspeksi berhasil disimpan! Anda adalah pengawas yang melakukan inspeksi hari ini.');
 
         } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error saat menyimpan inspeksi: ' . $e->getMessage());
+            Log::error('Trace: ' . $e->getTraceAsString());
+            
             return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->with('error', 'Terjadi kesalahan saat menyimpan inspeksi: ' . $e->getMessage())
                 ->withInput();
         }
     }
@@ -101,22 +182,28 @@ class InspeksiController extends Controller
      */
     public function laporan()
     {
-        $inspeksis = Inspeksi::with([
-            'jawaban', 
-            'jawaban.pertanyaan',
-            'kategori',
-            'pengawas'
-        ])
-        ->where('pengawas_id', Auth::id())
-        ->orderBy('created_at', 'desc')
-        ->paginate(10);
+        Log::info('=== LAPORAN DATA ===');
+        
+        // Ambil semua inspeksi dengan relasi
+        $inspeksis = Inspeksi::with(['pengawas', 'jawaban'])
+            ->orderBy('tanggal', 'desc')
+            ->paginate(10);
 
-        $inspeksis->getCollection()->transform(function ($inspeksi) {
-            $inspeksi->created_at = $inspeksi->created_at->timezone('Asia/Kuala_Lumpur');
-            return $inspeksi;
-        });
+        Log::info('Jumlah inspeksi ditemukan: ' . $inspeksis->count());
 
-        return view('pengawas.laporan', compact('inspeksis'));
+        // Statistik - update query untuk menggunakan tanggal
+        $totalBulanIni = Inspeksi::whereMonth('tanggal', now()->month)->count();
+        $kategoriBerbeda = Inspeksi::distinct('kategori_id')->count('kategori_id');
+        
+        $hariDalamBulan = now()->daysInMonth;
+        $rataRataPerHari = $hariDalamBulan > 0 ? round($totalBulanIni / $hariDalamBulan, 1) : 0;
+
+        return view('pengawas.laporan', compact(
+            'inspeksis',
+            'totalBulanIni',
+            'kategoriBerbeda',
+            'rataRataPerHari'
+        ));
     }
 
     /**
@@ -203,7 +290,6 @@ class InspeksiController extends Controller
                     ];
                 }),
                 'tanda_tangan' => $inspeksi->tanda_tangan,
-                'lokasi' => $inspeksi->lokasi,
                 'keterangan' => $inspeksi->keterangan
             ]);
 

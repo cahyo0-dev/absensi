@@ -35,12 +35,12 @@ class User extends Authenticatable
     }
 
     // Helper methods untuk check role
-    public function isAdmin()
+    public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
-    public function isPengawas()
+    public function isPengawas(): bool
     {
         return $this->role === 'pengawas';
     }
@@ -54,5 +54,10 @@ class User extends Authenticatable
     public function scopePengawas($query)
     {
         return $query->where('role', 'pengawas');
+    }
+
+    public static function totalPengawas()
+    {
+        return self::where('role', 'pengawas')->count();
     }
 }

@@ -6,151 +6,175 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Pengawas</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body class="bg-gray-100">
     <div class="min-h-screen flex">
         <!-- Sidebar -->
-        <div
-            class="fixed inset-y-0 left-0 w-64 bg-blue-800 transform transition-transform duration-200 ease-in-out -translate-x-full md:translate-x-0">
-            <div class="flex items-center justify-center h-16 bg-blue-900">
-                <span class="text-white text-lg font-semibold">Dashboard Pengawas</span>
+        <div class="w-64 bg-blue-800 text-white">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold">Sistem Inspeksi</h1>
+                <p class="text-blue-200 text-sm">Dashboard Pengawas</p>
             </div>
-            <nav class="mt-5">
-                <a href="{{ route('pengawas.dashboard') }}"
-                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 text-white bg-blue-700">
-                    <i class="fas fa-tachometer-alt mr-3"></i>
-                    Dashboard
+            <nav class="mt-6">
+                <a href="{{ route('pengawas.dashboard') }}" class="block py-3 px-4 bg-blue-900 text-white">
+                    <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
                 </a>
-                <a href="{{ route('pengawas.inspeksi') }}"
-                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 text-white">
-                    <i class="fas fa-clipboard-check mr-3"></i>
-                    Inspeksi
+                <a href="{{ route('pengawas.inspeksi') }}" class="block py-3 px-4 hover:bg-blue-700 text-white">
+                    <i class="fas fa-clipboard-check mr-3"></i>Inspeksi
                 </a>
-                <a href="{{ route('pengawas.laporan') }}"
-                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 text-white">
-                    <i class="fas fa-file-alt mr-3"></i>
-                    Laporan
+                <a href="{{ route('pengawas.laporan') }}" class="block py-3 px-4 hover:bg-blue-700 text-white">
+                    <i class="fas fa-chart-bar mr-3"></i>Laporan
                 </a>
-                <form method="POST" action="{{ route('logout') }}"
-                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 text-white">
+                <form method="POST" action="{{ route('logout') }}" class="mt-4">
                     @csrf
-                    <i class="fas fa-sign-out-alt mr-3"></i>
-                    <button type="submit">Logout</button>
+                    <button type="submit" class="w-full text-left block py-3 px-4 hover:bg-blue-700 text-white">
+                        <i class="fas fa-sign-out-alt mr-3"></i>Logout
+                    </button>
                 </form>
             </nav>
         </div>
 
-        <!-- Main content -->
-        <div class="flex-1 md:ml-64">
+        <!-- Main Content -->
+        <div class="flex-1">
             <!-- Header -->
-            <div class="bg-white shadow">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-between items-center py-4">
+            <header class="bg-white shadow">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div class="flex justify-between items-center">
                         <h1 class="text-2xl font-bold text-gray-900">Dashboard Pengawas</h1>
-                        <div class="flex items-center space-x-4">
-                            <span class="text-sm text-gray-500">
-                                <i class="fas fa-user mr-1"></i>
-                                {{ Auth::user()->name }}
-                            </span>
-                            <span class="text-sm text-gray-500">
-                                <i class="fas fa-calendar mr-1"></i>
-                                {{ date('d/m/Y') }}
-                            </span>
+                        <div class="text-right">
+                            <p class="text-gray-600">Halo, {{ Auth::user()->name }}</p>
+                            <p class="text-sm text-gray-500">{{ now()->format('d F Y') }}</p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </header>
 
-            <div class="p-6">
-                @if (session('success'))
-                    <div
-                        class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 flex items-center">
-                        <i class="fas fa-check-circle mr-2"></i>
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                @if (session('error'))
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 flex items-center">
-                        <i class="fas fa-exclamation-circle mr-2"></i>
-                        {{ session('error') }}
-                    </div>
-                @endif
-
-                <!-- Statistik -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Stats Grid -->
+            <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Inspeksi Hari Ini -->
                     <div class="bg-white rounded-lg shadow p-6">
                         <div class="flex items-center">
-                            <div class="p-3 bg-blue-500 rounded-lg">
-                                <i class="fas fa-clipboard-list text-white text-xl"></i>
+                            <div class="p-3 rounded-full bg-blue-100 text-blue-500">
+                                <i class="fas fa-clipboard-check text-xl"></i>
                             </div>
                             <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-600">Inspeksi Hari Ini</p>
-                                <p class="text-2xl font-semibold text-gray-900">{{ $inspeksiHariIni }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 bg-green-500 rounded-lg">
-                                <i class="fas fa-check-circle text-white text-xl"></i>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-600">Total Inspeksi</p>
-                                <p class="text-2xl font-semibold text-gray-900">{{ $totalInspeksi }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 bg-yellow-500 rounded-lg">
-                                <i class="fas fa-tasks text-white text-xl"></i>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-600">Status Hari Ini</p>
-                                <p class="text-2xl font-semibold text-gray-900">
-                                    {{ $inspeksiHariIni > 0 ? 'Selesai' : 'Belum' }}
+                                <h3 class="text-lg font-semibold text-gray-700">Status Hari Ini</h3>
+                                <p
+                                    class="text-2xl font-bold @if ($inspeksiHariIni) text-green-600 @else text-red-600 @endif">
+                                    @if ($inspeksiHariIni)
+                                        Sudah Inspeksi
+                                    @else
+                                        Belum Inspeksi
+                                    @endif
                                 </p>
+                                @if ($inspeksiHariIni && $inspektorHariIni)
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        Oleh: {{ $inspektorHariIni->name }}
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Inspeksi -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-green-100 text-green-500">
+                                <i class="fas fa-chart-bar text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-700">Total Inspeksi</h3>
+                                <p class="text-2xl font-bold text-green-600">{{ $totalInspeksi }}</p>
+                                <p class="text-sm text-gray-500 mt-1">Semua waktu</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inspeksi Bulan Ini -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-purple-100 text-purple-500">
+                                <i class="fas fa-calendar-alt text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-700">Bulan Ini</h3>
+                                <p class="text-2xl font-bold text-purple-600">{{ $inspeksiBulanIni }}</p>
+                                <p class="text-sm text-gray-500 mt-1">{{ now()->format('F Y') }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Pengawas -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-orange-100 text-orange-500">
+                                <i class="fas fa-users text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-700">Total Pengawas</h3>
+                                <p class="text-2xl font-bold text-orange-600">{{ $totalPengawas }}</p>
+                                <p class="text-sm text-gray-500 mt-1">Aktif</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Quick Actions -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <i class="fas fa-bolt mr-2 text-yellow-500"></i>
-                        Quick Actions
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <a href="{{ route('pengawas.inspeksi') }}"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-150">
-                            <div class="p-2 bg-blue-100 rounded-lg">
-                                <i class="fas fa-clipboard-check text-blue-600 text-xl"></i>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-900">Lakukan Inspeksi</p>
-                                <p class="text-sm text-gray-500">Inspeksi harian untuk hari ini</p>
-                            </div>
-                        </a>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Lakukan Inspeksi -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
+                        <div class="space-y-4">
+                            <a href="{{ route('pengawas.inspeksi') }}"
+                                class="block w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg text-center transition duration-200">
+                                <i class="fas fa-plus-circle mr-2"></i>Lakukan Inspeksi
+                            </a>
+                            <p class="text-sm text-gray-600 text-center">
+                                Inspeksi harian untuk hari ini<br>
+                                <span class="text-xs text-gray-500">(Hanya 1 inspeksi per hari untuk semua
+                                    pengawas)</span>
+                            </p>
+                        </div>
+                    </div>
 
-                        <a href="{{ route('pengawas.laporan') }}"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-150">
-                            <div class="p-2 bg-green-100 rounded-lg">
-                                <i class="fas fa-file-alt text-green-600 text-xl"></i>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-900">Lihat Laporan</p>
-                                <p class="text-sm text-gray-500">Lihat semua laporan inspeksi</p>
-                            </div>
-                        </a>
+                    <!-- Lihat Laporan -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Laporan</h3>
+                        <div class="space-y-4">
+                            <a href="{{ route('pengawas.laporan') }}"
+                                class="block w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg text-center transition duration-200">
+                                <i class="fas fa-chart-bar mr-2"></i>Lihat Semua Laporan
+                            </a>
+                            <p class="text-sm text-gray-600 text-center">
+                                Akses semua data inspeksi yang telah dilakukan
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                <!-- Info Sistem -->
+                <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-yellow-500 mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-yellow-800">Informasi Sistem</h4>
+                            <p class="text-yellow-700 mt-1">
+                                • Sistem hanya mengizinkan <strong>1 inspeksi per hari</strong> untuk semua pengawas<br>
+                                • Total pengawas aktif: <strong>{{ $totalPengawas }} orang</strong><br>
+                                • Hari ini:
+                                @if ($inspeksiHariIni)
+                                    <span class="text-green-600">Inspeksi sudah dilakukan</span>
+                                @else
+                                    <span class="text-red-600">Belum ada inspeksi</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 </body>
