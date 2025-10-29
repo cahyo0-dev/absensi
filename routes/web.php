@@ -14,6 +14,14 @@ use App\Http\Controllers\InspeksiController;
 Route::get('/', function () {
     return view('absensi.index');
 });
+//absensi
+Route::prefix('absensi')->name('absensi.')->group(function () {
+    Route::get('/form', function () {
+        return view('absensi.index');
+    })->name('form');
+    
+    Route::post('/store', [AbsensiController::class, 'store'])->name('store');
+});
 
 Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi.index');
 Route::post('/absensi', [AbsensiController::class, 'store'])->name('absensi.store');
@@ -27,7 +35,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Pengawas routes
 Route::prefix('pengawas')->name('pengawas.')->middleware('auth')->group(function () {
-    Route::get('/dashboard', [InspeksiController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', function () {return view('pengawas.dashboard');})->name('dashboard');
     Route::get('/inspeksi', [InspeksiController::class, 'create'])->name('inspeksi');
     Route::post('/inspeksi', [InspeksiController::class, 'store'])->name('storeInspeksi');
     Route::get('/laporan', [InspeksiController::class, 'laporan'])->name('laporan');
@@ -60,3 +68,18 @@ Route::post('/pengawas/inspeksi/export-range', [InspeksiController::class, 'expo
 Route::get('/pengawas/inspeksi/export-preset/{preset}', [InspeksiController::class, 'exportPreset'])
     ->middleware('auth')
     ->name('inspeksi.export.preset');
+
+// Untuk edit inspeksi
+Route::get('/pengawas/inspeksi/{id}/edit', [InspeksiController::class, 'create'])->name('pengawas.inspeksi.edit');
+
+// Untuk update inspeksi  
+Route::put('/pengawas/inspeksi/{id}', [InspeksiController::class, 'store'])->name('pengawas.inspeksi.update');
+
+// Untuk hapus inspeksi
+Route::delete('/pengawas/inspeksi/{id}', [InspeksiController::class, 'destroy'])->name('pengawas.inspeksi.destroy');
+
+// Untuk detail inspeksi (JSON)
+Route::get('/pengawas/laporan/{id}', [InspeksiController::class, 'show'])->name('pengawas.laporan.show');
+
+// Untuk export single
+Route::get('/pengawas/inspeksi/{id}/export', [InspeksiController::class, 'export'])->name('pengawas.inspeksi.export');

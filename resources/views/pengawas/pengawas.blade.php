@@ -7,26 +7,31 @@
     <div class="min-h-screen bg-gray-100">
         <!-- Sidebar -->
         <div
-            class="fixed inset-y-0 left-0 w-64 bg-blue-800 transform transition-transform duration-200 ease-in-out -translate-x-full md:translate-x-0">
-            <div class="flex items-center justify-center h-16 bg-blue-900">
-                <span class="text-white text-lg font-semibold">Dashboard Pengawas</span>
+            class="fixed inset-y-0 left-0 w-64 bg-blue-800 text-white transform transition-transform duration-200 ease-in-out -translate-x-full md:translate-x-0">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold">Sistem Inspeksi</h1>
+                <p class="text-blue-200 text-sm">Dashboard Pengawas</p>
             </div>
             <nav class="mt-5">
                 <a href="{{ route('pengawas.dashboard') }}"
-                    class="block py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 text-white">
+                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 text-white">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
                     Dashboard
                 </a>
                 <a href="{{ route('pengawas.inspeksi') }}"
-                    class="block py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 text-white">
+                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 text-white">
+                    <i class="fas fa-clipboard-check mr-3"></i>
                     Inspeksi
                 </a>
                 <a href="{{ route('pengawas.laporan') }}"
-                    class="block py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 text-white bg-blue-700">
+                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 text-white">
+                    <i class="fas fa-file-alt mr-3"></i>
                     Laporan
                 </a>
                 <form method="POST" action="{{ route('logout') }}"
-                    class="block py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 text-white">
+                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 text-white">
                     @csrf
+                    <i class="fas fa-sign-out-alt mr-3"></i>
                     <button type="submit">Logout</button>
                 </form>
             </nav>

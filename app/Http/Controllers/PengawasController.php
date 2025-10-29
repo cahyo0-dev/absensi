@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Inspeksi;
 use App\Models\KategoriInspeksi;
 use App\Models\Pertanyaan;
-use App\Models\JawabanInspeksi;
+use App\Models\Jawaban;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -57,7 +57,7 @@ class PengawasController extends Controller
 
         // Simpan jawaban
         foreach ($validated['jawaban'] as $pertanyaanId => $jawaban) {
-            JawabanInspeksi::create([
+            Jawaban::create([
                 'inspeksi_id' => $inspeksi->id,
                 'pertanyaan_id' => $pertanyaanId,
                 'jawaban' => $jawaban,

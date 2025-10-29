@@ -1,182 +1,156 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Pengawas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
+@section('title', 'Dashboard Pengawas')
 
-<body class="bg-gray-100">
-    <div class="min-h-screen flex">
-        <!-- Sidebar -->
-        <div class="w-64 bg-blue-800 text-white">
-            <div class="p-4">
-                <h1 class="text-2xl font-bold">Sistem Inspeksi</h1>
-                <p class="text-blue-200 text-sm">Dashboard Pengawas</p>
+@section('content')
+    <div class="space-y-6">
+        <!-- Welcome Header -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Dashboard Pengawas</h1>
+                    <p class="text-gray-600 mt-1">Selamat datang, <span class="font-semibold">{{ Auth::user()->name }}</span>
+                    </p>
+                </div>
+                <div class="mt-3 sm:mt-0 text-sm text-gray-500 bg-gray-50 px-3 py-2 rounded-lg">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
+                </div>
             </div>
-            <nav class="mt-6">
-                <a href="{{ route('pengawas.dashboard') }}" class="block py-3 px-4 bg-blue-900 text-white">
-                    <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
-                </a>
-                <a href="{{ route('pengawas.inspeksi') }}" class="block py-3 px-4 hover:bg-blue-700 text-white">
-                    <i class="fas fa-clipboard-check mr-3"></i>Inspeksi
-                </a>
-                <a href="{{ route('pengawas.laporan') }}" class="block py-3 px-4 hover:bg-blue-700 text-white">
-                    <i class="fas fa-chart-bar mr-3"></i>Laporan
-                </a>
-                <form method="POST" action="{{ route('logout') }}" class="mt-4">
-                    @csrf
-                    <button type="submit" class="w-full text-left block py-3 px-4 hover:bg-blue-700 text-white">
-                        <i class="fas fa-sign-out-alt mr-3"></i>Logout
-                    </button>
-                </form>
-            </nav>
         </div>
 
-        <!-- Main Content -->
-        <div class="flex-1">
-            <!-- Header -->
-            <header class="bg-white shadow">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div class="flex justify-between items-center">
-                        <h1 class="text-2xl font-bold text-gray-900">Dashboard Pengawas</h1>
-                        <div class="text-right">
-                            <p class="text-gray-600">Halo, {{ Auth::user()->name }}</p>
-                            <p class="text-sm text-gray-500">{{ now()->format('d F Y') }}</p>
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Status Hari Ini -->
+            <div class="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-900">Status Hari Ini</h3>
+                        <p class="mt-1 text-lg font-semibold text-green-600">Sudah Inspeksi</p>
+                        <p class="text-xs text-gray-500">Oleh: {{ Auth::user()->name }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Inspeksi -->
+            <div class="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clipboard-list text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-900">Total Inspeksi</h3>
+                        <p class="mt-1 text-2xl font-bold text-gray-900">3</p>
+                        <p class="text-xs text-gray-500">Semua waktu</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulan Ini -->
+            <div class="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar-alt text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-900">Bulan Ini</h3>
+                        <p class="mt-1 text-2xl font-bold text-gray-900">3</p>
+                        <p class="text-xs text-gray-500">{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Pengawas -->
+            <div class="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-900">Total Pengawas</h3>
+                        <p class="mt-1 text-2xl font-bold text-gray-900">4</p>
+                        <p class="text-xs text-gray-500">Aktif</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Laporan -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Quick Actions -->
+            <div class="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-bolt text-yellow-500 mr-2"></i>
+                    Quick Actions
+                </h2>
+                <div class="space-y-4">
+                    <div class="flex items-start p-3 hover:bg-gray-50 rounded-lg transition duration-200">
+                        <div class="flex-shrink-0 mt-1">
+                            <div class="w-6 h-6 border-2 border-gray-300 rounded flex items-center justify-center">
+                                <!-- Empty checkbox -->
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">Lakukan Inspeksi</p>
+                            <p class="text-xs text-gray-500 mt-1">Mulai inspeksi baru</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start p-3 bg-green-50 rounded-lg transition duration-200">
+                        <div class="flex-shrink-0 mt-1">
+                            <div class="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">Inspeksi harian untuk hari ini</p>
+                            <p class="text-xs text-gray-500 mt-1">(Hanya 1 inspeksi per hari untuk semua pengawas)</p>
                         </div>
                     </div>
                 </div>
-            </header>
+            </div>
 
-            <!-- Stats Grid -->
-            <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Inspeksi Hari Ini -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-blue-100 text-blue-500">
-                                <i class="fas fa-clipboard-check text-xl"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-semibold text-gray-700">Status Hari Ini</h3>
-                                <p
-                                    class="text-2xl font-bold @if ($inspeksiHariIni) text-green-600 @else text-red-600 @endif">
-                                    @if ($inspeksiHariIni)
-                                        Sudah Inspeksi
-                                    @else
-                                        Belum Inspeksi
-                                    @endif
-                                </p>
-                                @if ($inspeksiHariIni && $inspektorHariIni)
-                                    <p class="text-sm text-gray-500 mt-1">
-                                        Oleh: {{ $inspektorHariIni->name }}
-                                    </p>
-                                @endif
+            <!-- Laporan -->
+            <div class="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-chart-bar text-blue-500 mr-2"></i>
+                    Laporan
+                </h2>
+                <div class="space-y-4">
+                    <div class="flex items-start p-3 hover:bg-gray-50 rounded-lg transition duration-200">
+                        <div class="flex-shrink-0 mt-1">
+                            <div class="w-6 h-6 border-2 border-gray-300 rounded flex items-center justify-center">
+                                <!-- Empty checkbox -->
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Total Inspeksi -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-green-100 text-green-500">
-                                <i class="fas fa-chart-bar text-xl"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-semibold text-gray-700">Total Inspeksi</h3>
-                                <p class="text-2xl font-bold text-green-600">{{ $totalInspeksi }}</p>
-                                <p class="text-sm text-gray-500 mt-1">Semua waktu</p>
-                            </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">Lihat Semua Laporan</p>
+                            <p class="text-xs text-gray-500 mt-1">Akses laporan lengkap</p>
                         </div>
                     </div>
-
-                    <!-- Inspeksi Bulan Ini -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-purple-100 text-purple-500">
-                                <i class="fas fa-calendar-alt text-xl"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-semibold text-gray-700">Bulan Ini</h3>
-                                <p class="text-2xl font-bold text-purple-600">{{ $inspeksiBulanIni }}</p>
-                                <p class="text-sm text-gray-500 mt-1">{{ now()->format('F Y') }}</p>
+                    <div class="flex items-start p-3 bg-green-50 rounded-lg transition duration-200">
+                        <div class="flex-shrink-0 mt-1">
+                            <div class="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Total Pengawas -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-orange-100 text-orange-500">
-                                <i class="fas fa-users text-xl"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-semibold text-gray-700">Total Pengawas</h3>
-                                <p class="text-2xl font-bold text-orange-600">{{ $totalPengawas }}</p>
-                                <p class="text-sm text-gray-500 mt-1">Aktif</p>
-                            </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">Akses semua data inspeksi yang telah dilakukan</p>
+                            <p class="text-xs text-gray-500 mt-1">Data historis tersedia</p>
                         </div>
                     </div>
                 </div>
-
-                <!-- Quick Actions -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Lakukan Inspeksi -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
-                        <div class="space-y-4">
-                            <a href="{{ route('pengawas.inspeksi') }}"
-                                class="block w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg text-center transition duration-200">
-                                <i class="fas fa-plus-circle mr-2"></i>Lakukan Inspeksi
-                            </a>
-                            <p class="text-sm text-gray-600 text-center">
-                                Inspeksi harian untuk hari ini<br>
-                                <span class="text-xs text-gray-500">(Hanya 1 inspeksi per hari untuk semua
-                                    pengawas)</span>
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Lihat Laporan -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-xl font-bold text-gray-900 mb-4">Laporan</h3>
-                        <div class="space-y-4">
-                            <a href="{{ route('pengawas.laporan') }}"
-                                class="block w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg text-center transition duration-200">
-                                <i class="fas fa-chart-bar mr-2"></i>Lihat Semua Laporan
-                            </a>
-                            <p class="text-sm text-gray-600 text-center">
-                                Akses semua data inspeksi yang telah dilakukan
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Info Sistem -->
-                <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-                    <div class="flex items-start">
-                        <i class="fas fa-info-circle text-yellow-500 mt-1 mr-3"></i>
-                        <div>
-                            <h4 class="font-semibold text-yellow-800">Informasi Sistem</h4>
-                            <p class="text-yellow-700 mt-1">
-                                • Sistem hanya mengizinkan <strong>1 inspeksi per hari</strong> untuk semua pengawas<br>
-                                • Total pengawas aktif: <strong>{{ $totalPengawas }} orang</strong><br>
-                                • Hari ini:
-                                @if ($inspeksiHariIni)
-                                    <span class="text-green-600">Inspeksi sudah dilakukan</span>
-                                @else
-                                    <span class="text-red-600">Belum ada inspeksi</span>
-                                @endif
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </main>
+            </div>
         </div>
     </div>
-</body>
-
-</html>
+@endsection

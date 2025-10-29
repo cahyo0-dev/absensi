@@ -130,27 +130,67 @@
                                     </div>
                                     <div class="flex-1">
                                         @if (isset($aktivitas->nip))
+                                            <!-- Tampilan untuk Absensi -->
                                             <p class="text-sm font-medium text-gray-900">
-                                                Absensi dari {{ $aktivitas->nama }}
+                                                Absensi dari {{ $aktivitas->nama ?? 'Unknown User' }}
                                             </p>
                                             <p class="text-sm text-gray-500">
-                                                NIP: {{ $aktivitas->nip }} • {{ $aktivitas->created_at->diffForHumans() }}
-                                            </p>
-                                        @else
-                                            <p class="text-sm font-medium text-gray-900">
-                                                Inspeksi oleh {{ $aktivitas->pengawas->name }}
-                                            </p>
-                                            <p class="text-sm text-gray-500">
-                                                Kategori: {{ $aktivitas->kategori->nama }} •
+                                                NIP: {{ $aktivitas->nip ?? 'N/A' }} •
                                                 {{ $aktivitas->created_at->diffForHumans() }}
                                             </p>
+                                            <p class="text-xs text-gray-400 mt-1">
+                                                Provinsi: {{ $aktivitas->provinsi ?? 'Tidak diketahui' }}
+                                            </p>
+                                        @else
+                                            <!-- Tampilan untuk Inspeksi -->
+                                            <p class="text-sm font-medium text-gray-900">
+                                                Inspeksi oleh {{ $aktivitas->pengawas->name ?? 'Unknown Pengawas' }}
+                                            </p>
+                                            <p class="text-sm text-gray-500">
+                                                Kategori: {{ $aktivitas->kategori->nama ?? 'Tidak ada kategori' }} •
+                                                {{ $aktivitas->created_at->diffForHumans() }}
+                                            </p>
+                                            <p class="text-xs text-gray-400 mt-1">
+                                                Total Jawaban: {{ $aktivitas->jawaban->count() ?? 0 }} pertanyaan
+                                            </p>
+                                        @endif
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        @if (isset($aktivitas->nip))
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded">Absensi</span>
+                                        @else
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded">Inspeksi</span>
                                         @endif
                                     </div>
                                 </div>
                             @empty
-                                <p class="text-gray-500 text-center py-4">Belum ada aktivitas terbaru.</p>
+                                <div class="text-center py-8">
+                                    <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    <p class="text-gray-500">Belum ada aktivitas terbaru.</p>
+                                    <p class="text-sm text-gray-400 mt-1">Aktivitas akan muncul di sini setelah ada absensi
+                                        atau inspeksi.</p>
+                                </div>
                             @endforelse
                         </div>
+
+                        <!-- Tombol Lihat Semua Aktivitas -->
+                        @if (count($aktivitasTerbaru) > 0)
+                            <div class="mt-6 text-center">
+                                <a href="{{ route('admin.laporan') }}"
+                                    class="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                    Lihat Semua Aktivitas
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 <!-- resources/views/auth/login.blade.php -->
-@extends('layouts.app')
+@extends('layouts.without-sidebar')
 
 @section('title', 'Login')
 
