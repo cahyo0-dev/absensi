@@ -17,6 +17,27 @@
         .form-input:focus {
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
+
+        .form-input:read-only {
+            background-color: #f9fafb;
+            cursor: not-allowed;
+        }
+
+        .btn-masuk {
+            background-color: #10b981;
+        }
+
+        .btn-masuk:hover {
+            background-color: #059669;
+        }
+
+        .btn-pulang {
+            background-color: #f59e0b;
+        }
+
+        .btn-pulang:hover {
+            background-color: #d97706;
+        }
     </style>
 @endsection
 
@@ -99,9 +120,9 @@
                                 <i class="fas fa-id-card mr-2 text-blue-500"></i>
                                 NIP
                             </label>
-                            <input type="text" name="nip" required
+                            <input type="text" name="nip" id="nip" required
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 form-input"
-                                placeholder="Masukkan NIP" value="{{ old('nip') }}">
+                                placeholder="Masukkan NIP" value="{{ old('nip') }}" autocomplete="off">
                             @error('nip')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -113,9 +134,9 @@
                                 <i class="fas fa-user mr-2 text-blue-500"></i>
                                 Nama
                             </label>
-                            <input type="text" name="nama" required
+                            <input type="text" name="nama" id="nama" required
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 form-input"
-                                placeholder="Masukkan Nama Lengkap" value="{{ old('nama') }}">
+                                placeholder="Masukkan Nama Lengkap" value="{{ old('nama') }}" autocomplete="off">
                             @error('nama')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -127,7 +148,7 @@
                                 <i class="fas fa-briefcase mr-2 text-blue-500"></i>
                                 Jabatan
                             </label>
-                            <input type="text" name="jabatan" required
+                            <input type="text" name="jabatan" id="jabatan" required
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 form-input"
                                 placeholder="Masukkan Jabatan" value="{{ old('jabatan') }}">
                             @error('jabatan')
@@ -141,7 +162,7 @@
                                 <i class="fas fa-building mr-2 text-blue-500"></i>
                                 Unit Kerja
                             </label>
-                            <input type="text" name="unit_kerja" required
+                            <input type="text" name="unit_kerja" id="unit_kerja" required
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 form-input"
                                 placeholder="Masukkan Unit Kerja" value="{{ old('unit_kerja') }}">
                             @error('unit_kerja')
@@ -155,7 +176,7 @@
                                 <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i>
                                 Provinsi
                             </label>
-                            <select name="provinsi" required
+                            <select name="provinsi" id="provinsi" required
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 form-input">
                                 <option value="">Pilih Provinsi</option>
                                 <option value="Aceh" {{ old('provinsi') == 'Aceh' ? 'selected' : '' }}>Aceh</option>
@@ -206,7 +227,8 @@
                                     {{ old('provinsi') == 'Kalimantan Timur' ? 'selected' : '' }}>Kalimantan Timur</option>
                                 <option value="Kalimantan Utara"
                                     {{ old('provinsi') == 'Kalimantan Utara' ? 'selected' : '' }}>Kalimantan Utara</option>
-                                <option value="Sulawesi Utara" {{ old('provinsi') == 'Sulawesi Utara' ? 'selected' : '' }}>
+                                <option value="Sulawesi Utara"
+                                    {{ old('provinsi') == 'Sulawesi Utara' ? 'selected' : '' }}>
                                     Sulawesi Utara</option>
                                 <option value="Sulawesi Tengah"
                                     {{ old('provinsi') == 'Sulawesi Tengah' ? 'selected' : '' }}>Sulawesi Tengah</option>
@@ -217,7 +239,8 @@
                                 </option>
                                 <option value="Gorontalo" {{ old('provinsi') == 'Gorontalo' ? 'selected' : '' }}>Gorontalo
                                 </option>
-                                <option value="Sulawesi Barat" {{ old('provinsi') == 'Sulawesi Barat' ? 'selected' : '' }}>
+                                <option value="Sulawesi Barat"
+                                    {{ old('provinsi') == 'Sulawesi Barat' ? 'selected' : '' }}>
                                     Sulawesi Barat</option>
                                 <option value="Maluku" {{ old('provinsi') == 'Maluku' ? 'selected' : '' }}>Maluku</option>
                                 <option value="Maluku Utara" {{ old('provinsi') == 'Maluku Utara' ? 'selected' : '' }}>
@@ -275,75 +298,12 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit"
-                        class="w-full bg-green-500 text-white py-4 px-6 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-4 focus:ring-green-200 transition duration-200 font-semibold text-lg shadow-lg">
+                    <button type="submit" id="submitButton"
+                        class="w-full bg-green-500 text-white py-4 px-6 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-4 focus:ring-green-200 transition duration-200 font-semibold text-lg shadow-lg btn-masuk">
                         <i class="fas fa-paper-plane mr-2"></i>
-                        Submit Absensi
+                        <span id="buttonText">Submit Absensi</span>
                     </button>
                 </form>
-            </div>
-
-            <!-- Quick Links -->
-            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <a href="{{ route('sop.index') }}"
-                    class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-blue-500">
-                    <div class="flex items-center">
-                        <i class="fas fa-book text-blue-500 text-xl mr-3"></i>
-                        <div>
-                            <h3 class="font-semibold text-gray-800">SOP</h3>
-                            <p class="text-sm text-gray-600">Lihat panduan lengkap</p>
-                        </div>
-                    </div>
-                </a>
-
-                @auth
-                    @if (Auth::user()->isPengawas())
-                        <a href="{{ route('pengawas.inspeksi') }}"
-                            class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-green-500">
-                            <div class="flex items-center">
-                                <i class="fas fa-clipboard-check text-green-500 text-xl mr-3"></i>
-                                <div>
-                                    <h3 class="font-semibold text-gray-800">Inspeksi</h3>
-                                    <p class="text-sm text-gray-600">Form inspeksi harian</p>
-                                </div>
-                            </div>
-                        </a>
-                    @endif
-
-                    @if (Auth::user()->isAdmin())
-                        <a href="{{ route('admin.dashboard') }}"
-                            class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-purple-500">
-                            <div class="flex items-center">
-                                <i class="fas fa-tachometer-alt text-purple-500 text-xl mr-3"></i>
-                                <div>
-                                    <h3 class="font-semibold text-gray-800">Dashboard</h3>
-                                    <p class="text-sm text-gray-600">Panel administrasi</p>
-                                </div>
-                            </div>
-                        </a>
-                    @endif
-                @else
-                    <a href="{{ route('login') }}"
-                        class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-indigo-500">
-                        <div class="flex items-center">
-                            <i class="fas fa-sign-in-alt text-indigo-500 text-xl mr-3"></i>
-                            <div>
-                                <h3 class="font-semibold text-gray-800">Login</h3>
-                                <p class="text-sm text-gray-600">Akses sistem lengkap</p>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="{{ route('register') }}"
-                        class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-indigo-400">
-                        <div class="flex items-center">
-                            <i class="fas fa-user-plus text-indigo-400 text-xl mr-3"></i>
-                            <div>
-                                <h3 class="font-semibold text-gray-800">Daftar</h3>
-                                <p class="text-sm text-gray-600">Buat akun baru</p>
-                            </div>
-                        </div>
-                    </a>
-                @endauth
             </div>
         </div>
     </div>
@@ -445,11 +405,101 @@
                 document.getElementById('signatureStatus').className = 'text-sm text-green-600 font-medium';
             });
 
+            // Check absensi when NIP is entered
+            document.getElementById('nip').addEventListener('blur', function() {
+                const nip = this.value.trim();
+
+                if (!nip) return;
+
+                // Show loading
+                this.disabled = true;
+
+                fetch('{{ route('absensi.check') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            nip: nip
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        this.disabled = false;
+
+                        if (data.exists) {
+                            // Fill form with existing data
+                            document.getElementById('nama').value = data.data.nama;
+                            document.getElementById('jabatan').value = data.data.jabatan;
+                            document.getElementById('unit_kerja').value = data.data.unit_kerja;
+                            document.getElementById('provinsi').value = data.data.provinsi;
+
+                            // Make fields read-only (tapi jangan disable select)
+                            document.getElementById('nama').readOnly = true;
+                            document.getElementById('jabatan').readOnly = true;
+                            document.getElementById('unit_kerja').readOnly = true;
+
+                            // Untuk select provinsi, gunakan readonly style tanpa disable
+                            document.getElementById('provinsi').style.backgroundColor = '#f9fafb';
+                            document.getElementById('provinsi').style.cursor = 'not-allowed';
+
+                            if (data.sudah_pulang) {
+                                // Jika sudah absen pulang, nonaktifkan form
+                                document.getElementById('buttonText').textContent =
+                                    'Sudah Absen Masuk & Pulang';
+                                document.getElementById('submitButton').className =
+                                    'w-full bg-gray-500 text-white py-4 px-6 rounded-lg cursor-not-allowed focus:outline-none font-semibold text-lg shadow-lg';
+                                document.getElementById('submitButton').disabled = true;
+
+                                // Nonaktifkan tanda tangan
+                                document.getElementById('clearSignature').disabled = true;
+                                document.getElementById('saveSignature').disabled = true;
+
+                                alert('Anda sudah melakukan absensi masuk dan pulang hari ini!');
+                            } else {
+                                // Change button to "Pulang"
+                                document.getElementById('buttonText').textContent = 'Pulang';
+                                document.getElementById('submitButton').className =
+                                    'w-full bg-yellow-500 text-white py-4 px-6 rounded-lg hover:bg-yellow-600 focus:outline-none focus:ring-4 focus:ring-yellow-200 transition duration-200 font-semibold text-lg shadow-lg btn-pulang';
+                                document.getElementById('submitButton').disabled = false;
+                            }
+
+                        } else {
+                            // Clear and enable fields for new absensi
+                            document.getElementById('nama').value = '';
+                            document.getElementById('jabatan').value = '';
+                            document.getElementById('unit_kerja').value = '';
+                            document.getElementById('provinsi').value = '';
+
+                            // Make fields editable
+                            document.getElementById('nama').readOnly = false;
+                            document.getElementById('jabatan').readOnly = false;
+                            document.getElementById('unit_kerja').readOnly = false;
+
+                            // Reset select provinsi style
+                            document.getElementById('provinsi').style.backgroundColor = '';
+                            document.getElementById('provinsi').style.cursor = '';
+
+                            // Change button to "Submit Absensi"
+                            document.getElementById('buttonText').textContent = 'Submit Absensi';
+                            document.getElementById('submitButton').className =
+                                'w-full bg-green-500 text-white py-4 px-6 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-4 focus:ring-green-200 transition duration-200 font-semibold text-lg shadow-lg btn-masuk';
+                            document.getElementById('submitButton').disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        this.disabled = false;
+                    });
+            });
+
             // Form submission
             document.getElementById('absensiForm').addEventListener('submit', function(e) {
                 if (!document.getElementById('tandaTangan').value) {
                     e.preventDefault();
                     alert('Harap simpan tanda tangan terlebih dahulu!');
+                    return;
                 }
             });
 

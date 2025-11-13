@@ -23,6 +23,7 @@ Route::prefix('absensi')->name('absensi.')->group(function () {
         return view('absensi.index');
     })->name('form');
 
+    Route::post('/check', [AbsensiController::class, 'checkAbsensi'])->name('check');
     Route::post('/store', [AbsensiController::class, 'store'])->name('store');
     Route::get('/', [AbsensiController::class, 'index'])->name('index');
 });

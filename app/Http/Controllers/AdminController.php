@@ -19,40 +19,51 @@ use App\Exports\UsersExport;
 
 class AdminController extends Controller
 {
+    // app/Http/Controllers/AdminController.php
     public function dashboard()
     {
-        try {
-            $user = Auth::user();
-            $totalUsers = User::count();
-            $totalAbsensi = Absensi::count();
-            $totalInspeksi = Inspeksi::count();
+        $user = Auth::user();
 
-            $absensiTerbaru = Absensi::latest()->take(5)->get();
-            $inspeksiTerbaru = Inspeksi::with(['pengawas', 'kategori'])
-                ->latest()
-                ->take(5)
-                ->get();
+        // Statistik
+        $totalUsers = User::count();
+        $totalAbsensi = Absensi::count();
+        $totalInspeksi = Inspeksi::count();
 
-            $aktivitasTerbaru = $absensiTerbaru->concat($inspeksiTerbaru)
-                ->sortByDesc('created_at')
-                ->take(5);
+        // Statistik absensi hari ini
+        $absensiMasukHariIni = Absensi::whereDate('waktu_masuk', today())->count();
+        $absensiPulangHariIni = Absensi::whereDate('waktu_pulang', today())->count();
 
-            return view('admin.dashboard', compact(
-                'user',
-                'totalUsers',
-                'totalAbsensi',
-                'totalInspeksi',
-                'aktivitasTerbaru'
-            ));
-        } catch (\Exception $e) {
-            return view('admin.dashboard', [
-                'user' => Auth::user(),
-                'totalUsers' => 0,
-                'totalAbsensi' => 0,
-                'totalInspeksi' => 0,
-                'aktivitasTerbaru' => new Collection()
-            ])->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
+        // Data absensi hari ini untuk tabel
+        $absensiHariIni = Absensi::whereDate('created_at', today())
+            ->orderBy('waktu_masuk', 'desc')
+            ->get();
+
+        // Aktivitas terbaru (gabungan absensi dan inspeksi)
+        $absensiTerbaru = Absensi::with('user')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $inspeksiTerbaru = Inspeksi::with(['pengawas', 'kategori'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Gabungkan aktivitas
+        $aktivitasTerbaru = $absensiTerbaru->concat($inspeksiTerbaru)
+            ->sortByDesc('created_at')
+            ->take(5);
+
+        return view('admin.dashboard', compact(
+            'user',
+            'totalUsers',
+            'totalAbsensi',
+            'totalInspeksi',
+            'absensiMasukHariIni',
+            'absensiPulangHariIni',
+            'absensiHariIni',
+            'aktivitasTerbaru'
+        ));
     }
 
     public function users()
