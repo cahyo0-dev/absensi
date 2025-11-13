@@ -13,12 +13,16 @@ class User extends Authenticatable
     protected $fillable = [
         'nip',
         'name',
-        'jabatan',
-        'unit_kerja',
+        'jabatan',       // = position
+        'unit_kerja',    // = department  
         'provinsi',
         'role',
         'email',
         'password',
+        'profile_photo', // baru
+        'phone',         // baru
+        'settings',      // baru
+        'last_login_at'  // baru
     ];
 
     protected $hidden = [
@@ -31,6 +35,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_login_at' => 'datetime', // baru
+            'settings' => 'array',         // baru
         ];
     }
 
@@ -59,5 +65,70 @@ class User extends Authenticatable
     public static function totalPengawas()
     {
         return self::where('role', 'pengawas')->count();
+    }
+
+    // Accessor untuk settings dengan default values
+    public function getSettingsAttribute($value)
+    {
+        $defaultSettings = [
+            'language' => 'id',
+            'timezone' => 'Asia/Jakarta',
+            'date_format' => 'd/m/Y',
+            'records_per_page' => 25,
+            'notifications' => [
+                'email' => true,
+                'sms' => false,
+                'push' => true,
+                'reports' => true,
+                'security' => true,
+            ],
+            'security' => [
+                'two_factor' => false,
+                'session_timeout' => 60,
+                'login_alerts' => true,
+                'password_expiry' => 90,
+            ],
+            'theme' => [
+                'color' => 'blue',
+                'density' => 'comfortable',
+                'dark_mode' => false,
+            ]
+        ];
+
+        if ($value) {
+            $decodedValue = json_decode($value, true);
+            // Deep merge untuk nested arrays
+            $mergedSettings = $this->arrayMergeRecursiveDistinct($defaultSettings, $decodedValue);
+            return $mergedSettings;
+        }
+
+        return $defaultSettings;
+    }
+
+    // Method untuk update settings
+    public function updateSettings(array $newSettings)
+    {
+        $currentSettings = $this->settings;
+        $updatedSettings = $this->arrayMergeRecursiveDistinct($currentSettings, $newSettings);
+        $this->settings = $updatedSettings;
+        return $this->save();
+    }
+
+    /**
+     * Deep merge arrays
+     */
+    private function arrayMergeRecursiveDistinct(array &$array1, array &$array2)
+    {
+        $merged = $array1;
+
+        foreach ($array2 as $key => &$value) {
+            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+                $merged[$key] = $this->arrayMergeRecursiveDistinct($merged[$key], $value);
+            } else {
+                $merged[$key] = $value;
+            }
+        }
+
+        return $merged;
     }
 }

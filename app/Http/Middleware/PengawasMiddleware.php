@@ -17,7 +17,7 @@ class PengawasMiddleware
 
         $user = Auth::user();
 
-        if (!Auth::user()->isPengawas()) {
+        if (!$user->isPengawas()) {
             abort(403, 'Akses Ditolak. Hanya untuk Pengawas.');
         }
 

@@ -47,6 +47,42 @@
                         Form Absensi
                     </h2>
                     <p class="text-gray-600">Silakan isi data absensi dengan lengkap dan benar</p>
+
+                    <!-- Navigation Buttons -->
+                    <div class="mt-4 flex flex-wrap justify-center gap-3">
+                        <a href="{{ route('sop.index') }}"
+                            class="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200 text-sm font-medium">
+                            <i class="fas fa-book mr-2"></i>
+                            Lihat SOP
+                        </a>
+                        @auth
+                            @if (Auth::user()->isPengawas())
+                                <a href="{{ route('pengawas.inspeksi') }}"
+                                    class="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-200 text-sm font-medium">
+                                    <i class="fas fa-clipboard-check mr-2"></i>
+                                    Form Inspeksi
+                                </a>
+                            @endif
+                            @if (Auth::user()->isAdmin())
+                                <a href="{{ route('admin.dashboard') }}"
+                                    class="inline-flex items-center px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition duration-200 text-sm font-medium">
+                                    <i class="fas fa-tachometer-alt mr-2"></i>
+                                    Dashboard Admin
+                                </a>
+                            @endif
+                        @else
+                            <a href="{{ route('login') }}"
+                                class="inline-flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition duration-200 text-sm font-medium">
+                                <i class="fas fa-sign-in-alt mr-2"></i>
+                                Login
+                            </a>
+                            <a href="{{ route('register') }}"
+                                class="inline-flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition duration-200 text-sm font-medium">
+                                <i class="fas fa-user-plus mr-2"></i>
+                                Daftar
+                            </a>
+                        @endauth
+                    </div>
                 </div>
             </div>
 
@@ -245,6 +281,69 @@
                         Submit Absensi
                     </button>
                 </form>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{{ route('sop.index') }}"
+                    class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-blue-500">
+                    <div class="flex items-center">
+                        <i class="fas fa-book text-blue-500 text-xl mr-3"></i>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">SOP</h3>
+                            <p class="text-sm text-gray-600">Lihat panduan lengkap</p>
+                        </div>
+                    </div>
+                </a>
+
+                @auth
+                    @if (Auth::user()->isPengawas())
+                        <a href="{{ route('pengawas.inspeksi') }}"
+                            class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-green-500">
+                            <div class="flex items-center">
+                                <i class="fas fa-clipboard-check text-green-500 text-xl mr-3"></i>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Inspeksi</h3>
+                                    <p class="text-sm text-gray-600">Form inspeksi harian</p>
+                                </div>
+                            </div>
+                        </a>
+                    @endif
+
+                    @if (Auth::user()->isAdmin())
+                        <a href="{{ route('admin.dashboard') }}"
+                            class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-purple-500">
+                            <div class="flex items-center">
+                                <i class="fas fa-tachometer-alt text-purple-500 text-xl mr-3"></i>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Dashboard</h3>
+                                    <p class="text-sm text-gray-600">Panel administrasi</p>
+                                </div>
+                            </div>
+                        </a>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}"
+                        class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-indigo-500">
+                        <div class="flex items-center">
+                            <i class="fas fa-sign-in-alt text-indigo-500 text-xl mr-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Login</h3>
+                                <p class="text-sm text-gray-600">Akses sistem lengkap</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="{{ route('register') }}"
+                        class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-indigo-400">
+                        <div class="flex items-center">
+                            <i class="fas fa-user-plus text-indigo-400 text-xl mr-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Daftar</h3>
+                                <p class="text-sm text-gray-600">Buat akun baru</p>
+                            </div>
+                        </div>
+                    </a>
+                @endauth
             </div>
         </div>
     </div>

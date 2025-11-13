@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Panel Pengawas') - Sistem Inspeksi</title>
+    <title>@yield('title', 'Admin Panel')</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,8 +22,8 @@
         }
 
         .active-sidebar-item {
-            background: linear-gradient(90deg, #059669 0%, #047857 100%);
-            border-right: 4px solid #f59e0b;
+            background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+            border-right: 4px solid #fbbf24;
         }
 
         .hover-lift:hover {
@@ -47,8 +47,6 @@
             }
         }
     </style>
-
-    @yield('styles')
 </head>
 
 <body class="bg-gray-50" x-data="{ sidebarOpen: window.innerWidth >= 768, mobileSidebarOpen: false }">
@@ -61,47 +59,49 @@
     </div>
 
     <!-- Sidebar -->
-    <div class="fixed inset-y-0 left-0 z-50 flex flex-col bg-gradient-to-b from-green-800 to-green-900 text-white sidebar-transition"
+    <div class="fixed inset-y-0 left-0 z-50 flex flex-col bg-gradient-to-b from-blue-800 to-blue-900 text-white sidebar-transition"
         :class="sidebarOpen ? 'w-64' : 'w-20'" x-show="sidebarOpen || mobileSidebarOpen"
         x-transition:enter="transform transition-transform duration-300 ease-in-out"
         x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
         x-transition:leave="transform transition-transform duration-300 ease-in-out"
-        x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-100"
+        x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full"
         @click.away="mobileSidebarOpen = false">
 
         <!-- Logo Section -->
-        <div class="flex items-center justify-between h-16 px-4 border-b border-green-700">
+        <div class="flex items-center justify-between h-16 px-4 border-b border-blue-700">
             <div class="flex items-center space-x-3" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'">
                 <div class="flex items-center justify-center w-10 h-10 bg-white rounded-lg">
-                    <i class="fas fa-clipboard-check text-2xl text-green-600"></i>
+                    <i class="fas fa-cogs text-2xl text-blue-600"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold">Panel Pengawas</h1>
-                    <p class="text-xs text-green-200">Sistem Inspeksi</p>
+                    <h1 class="text-lg font-bold">Admin Panel</h1>
+                    <p class="text-xs text-blue-200">Management System</p>
                 </div>
             </div>
 
             <!-- Toggle Button -->
             <button @click="sidebarOpen = !sidebarOpen; if(window.innerWidth < 768) mobileSidebarOpen = false"
-                class="p-2 rounded-lg hover:bg-green-700 transition-colors duration-200">
+                class="p-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
 
         <!-- User Profile Section -->
-        <div class="px-4 py-6 border-b border-green-700" x-show="sidebarOpen">
+        <div class="px-4 py-6 border-b border-blue-700" x-show="sidebarOpen">
             <div class="flex items-center space-x-3">
                 <div class="relative">
                     <div
                         class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                        {{ substr(Auth::user()->nama ?? (Auth::user()->name ?? 'P'), 0, 1) }}
+                        {{ substr(Auth::user()->nama ?? (Auth::user()->name ?? 'A'), 0, 1) }}
                     </div>
-                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-green-800 rounded-full">
+                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-blue-800 rounded-full">
                     </div>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="font-semibold truncate">{{ Auth::user()->nama ?? (Auth::user()->name ?? 'Pengawas') }}</p>
-                    <p class="text-sm text-green-200 truncate">{{ Auth::user()->email ?? 'pengawas@system.com' }}</p>
+                    <p class="font-semibold truncate">
+                        {{ Auth::user()->nama ?? (Auth::user()->name ?? 'Administrator') }}
+                    </p>
+                    <p class="text-sm text-blue-200 truncate">{{ Auth::user()->email ?? 'admin@system.com' }}</p>
                 </div>
             </div>
         </div>
@@ -109,59 +109,58 @@
         <!-- Navigation Menu -->
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             <!-- Dashboard -->
-            <a href="{{ route('pengawas.dashboard') }}"
-                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-green-700 hover-lift group {{ request()->routeIs('pengawas.dashboard') ? 'active-sidebar-item' : '' }}">
+            <a href="{{ route('admin.dashboard') }}"
+                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-blue-700 hover-lift group {{ request()->routeIs('admin.dashboard') ? 'active-sidebar-item' : '' }}">
                 <i class="fas fa-home text-lg w-6 text-center"></i>
                 <span class="ml-3 font-medium" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'">Dashboard</span>
-                @if (request()->routeIs('pengawas.dashboard'))
+                @if (request()->routeIs('admin.dashboard'))
                     <div class="ml-auto" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'">
                         <div class="w-2 h-2 bg-yellow-400 rounded-full"></div>
                     </div>
                 @endif
             </a>
 
-            <!-- Inspeksi -->
-            <a href="{{ route('pengawas.inspeksi') }}"
-                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-green-700 hover-lift group {{ request()->routeIs('pengawas.inspeksi') ? 'active-sidebar-item' : '' }}">
-                <i class="fas fa-clipboard-check text-lg w-6 text-center"></i>
-                <span class="ml-3 font-medium" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'">Inspeksi</span>
+            <!-- Users Management -->
+            <a href="{{ route('admin.users') }}"
+                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-blue-700 hover-lift group {{ request()->routeIs('admin.users') ? 'active-sidebar-item' : '' }}">
+                <i class="fas fa-users text-lg w-6 text-center"></i>
+                <span class="ml-3 font-medium" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'">Users</span>
                 <div class="ml-auto flex items-center space-x-1" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'">
-                    <span
-                        class="px-2 py-1 text-xs bg-green-600 rounded-full">{{ \App\Models\Inspeksi::where('pengawas_id', Auth::id())->count() }}</span>
+                    <span class="px-2 py-1 text-xs bg-blue-600 rounded-full">{{ \App\Models\User::count() }}</span>
                 </div>
             </a>
 
-            <!-- Laporan -->
-            <a href="{{ route('pengawas.laporan') }}"
-                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-green-700 hover-lift group {{ request()->routeIs('pengawas.laporan') ? 'active-sidebar-item' : '' }}">
+            <!-- Reports -->
+            <a href="{{ route('admin.laporan') }}"
+                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-blue-700 hover-lift group {{ request()->routeIs('admin.laporan') ? 'active-sidebar-item' : '' }}">
                 <i class="fas fa-chart-bar text-lg w-6 text-center"></i>
                 <span class="ml-3 font-medium" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'">Laporan</span>
                 <div class="ml-auto" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'">
                     <i
-                        class="fas fa-chevron-right text-xs text-green-300 group-hover:translate-x-1 transition-transform duration-200"></i>
+                        class="fas fa-chevron-right text-xs text-blue-300 group-hover:translate-x-1 transition-transform duration-200"></i>
                 </div>
             </a>
 
             <!-- Divider -->
-            <div class="border-t border-green-700 my-4"></div>
+            <div class="border-t border-blue-700 my-4"></div>
 
-            <!-- Settings -->
-            <a href="{{ route('pengawas.settings') }}"
-                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-green-700 hover-lift group {{ request()->routeIs('pengawas.settings') ? 'active-sidebar-item' : '' }}">
+            <!-- System-info -->
+            <a href="{{ route('admin.system.info') }}"
+                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-blue-700 hover-lift group {{ request()->routeIs('admin.system.info') ? 'active-sidebar-item' : '' }}">
                 <i class="fas fa-cog text-lg w-6 text-center"></i>
-                <span class="ml-3 font-medium" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'">Pengaturan</span>
+                <span class="ml-3 font-medium" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'">Info Sistem</span>
             </a>
 
             <!-- Help -->
-            <a href="{{ route('pengawas.bantuan') }}"
-                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-green-700 hover-lift group {{ request()->routeIs('pengawas.bantuan') ? 'active-sidebar-item' : '' }}">
+            <a href="{{ route('admin.bantuan') }}"
+                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-blue-700 hover-lift group {{ request()->routeIs('admin.bantuan') ? 'active-sidebar-item' : '' }}">
                 <i class="fas fa-question-circle text-lg w-6 text-center"></i>
                 <span class="ml-3 font-medium" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'">Bantuan</span>
             </a>
         </nav>
 
         <!-- Footer Section -->
-        <div class="p-4 border-t border-green-700">
+        <div class="p-4 border-t border-blue-700">
             <!-- Logout -->
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -174,7 +173,7 @@
 
             <!-- Collapse Indicator -->
             <div class="mt-4 text-center" x-show="sidebarOpen">
-                <p class="text-xs text-green-300">© 2025 Sistem Inspeksi</p>
+                <p class="text-xs text-blue-300">© 2025 Admin System</p>
             </div>
         </div>
     </div>
@@ -192,7 +191,7 @@
 
                     <!-- Breadcrumb -->
                     <div class="hidden md:flex items-center space-x-2 text-sm text-gray-500">
-                        <span>Pengawas</span>
+                        <span>Admin</span>
                         <i class="fas fa-chevron-right text-xs"></i>
                         <span class="text-gray-700">@yield('title', 'Dashboard')</span>
                     </div>
@@ -205,11 +204,11 @@
                         <button @click="open = !open"
                             class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100">
                             <div
-                                class="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                                {{ substr(Auth::user()->nama ?? (Auth::user()->name ?? 'P'), 0, 1) }}
+                                class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                {{ substr(Auth::user()->nama ?? (Auth::user()->name ?? 'A'), 0, 1) }}
                             </div>
                             <span class="hidden md:block text-sm font-medium text-gray-700">
-                                {{ Auth::user()->nama ?? (Auth::user()->name ?? 'Pengawas') }}
+                                {{ Auth::user()->nama ?? (Auth::user()->name ?? 'Admin') }}
                             </span>
                         </button>
                     </div>
@@ -234,11 +233,6 @@
                     }
                 });
             });
-
-            // Initialize with sidebar closed on mobile
-            if (window.innerWidth < 768) {
-                Alpine.store('sidebar').mobileSidebarOpen = false;
-            }
         });
     </script>
 

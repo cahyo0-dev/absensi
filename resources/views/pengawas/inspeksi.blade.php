@@ -35,6 +35,11 @@
             color: #3b82f6;
         }
 
+        .edit-question-btn-wrapper {
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
         .btn-spacing {
             margin-right: 0.75rem;
         }
@@ -158,14 +163,30 @@
                             role="tabpanel" aria-labelledby="tab-{{ $kategori->id }}">
 
                             <div class="mb-4">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
-                                    <i class="fas fa-tasks mr-2 text-blue-500"></i>
-                                    {{ $kategori->nama }}
-                                </h3>
-                                <p class="text-sm text-gray-600 flex items-center">
-                                    <i class="fas fa-info-circle mr-2 text-gray-400"></i>
-                                    {{ $kategori->deskripsi }}
-                                </p>
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                                    <div class="flex-1">
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                                            <i class="fas fa-tasks mr-2 text-blue-500"></i>
+                                            {{ $kategori->nama }}
+                                        </h3>
+                                        <p class="text-sm text-gray-600 flex items-center">
+                                            <i class="fas fa-info-circle mr-2 text-gray-400"></i>
+                                            {{ $kategori->deskripsi }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Tombol Edit Pertanyaan untuk Kategori Ini -->
+                                    <div class="edit-question-btn-wrapper" data-kategori-id="{{ $kategori->id }}">
+                                        <a href="{{ route('pertanyaan.edit', $kategori->id) }}"
+                                            class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition duration-200 text-sm font-medium">
+                                            <i class="fas fa-edit mr-2"></i>
+                                            Edit Pertanyaan
+                                        </a>
+                                        <p class="text-xs text-gray-500 mt-1 text-center sm:text-left">
+                                            Edit daftar pertanyaan untuk kategori ini
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
 
                             <div id="pertanyaan-section-{{ $kategori->id }}" class="space-y-3 sm:space-y-4">
@@ -280,16 +301,27 @@
                 existingAnswers: @json($jawabanFormatted ?? [])
             };
 
+            // DEBUG: Log existing answers
+            console.log('Existing Answers:', state.existingAnswers);
+            console.log('Edit Mode:', state.editMode);
+
             // Initialize state for each category
             @foreach ($kategories as $kategori)
                 state.jawaban[{{ $kategori->id }}] = {};
                 state.kategoriStatus[{{ $kategori->id }}] = false;
 
-                // Load existing answers if in edit mode
+                // Load existing answers if in edit mode - PERBAIKAN: Gunakan struktur yang benar
                 if (state.editMode && state.existingAnswers[{{ $kategori->id }}]) {
+                    console.log('Loading answers for kategori {{ $kategori->id }}:', state.existingAnswers[
+                        {{ $kategori->id }}]);
                     state.jawaban[{{ $kategori->id }}] = {
                         ...state.existingAnswers[{{ $kategori->id }}]
                     };
+
+                    // Auto-mark category as completed if it has answers
+                    if (Object.keys(state.existingAnswers[{{ $kategori->id }}]).length > 0) {
+                        state.kategoriStatus[{{ $kategori->id }}] = true;
+                    }
                 }
             @endforeach
 
@@ -319,8 +351,8 @@
             ctx.lineCap = 'round';
 
             // Load existing signature if in edit mode
-            @if ($editMode)
-                const existingSignature = document.getElementById('tandaTangan').value;
+            @if ($editMode && $inspeksi->tanda_tangan)
+                const existingSignature = '{{ $inspeksi->tanda_tangan }}';
                 if (existingSignature) {
                     const img = new Image();
                     img.onload = function() {
@@ -328,6 +360,7 @@
                         document.getElementById('signatureStatus').textContent = 'Tersimpan ✓';
                         document.getElementById('signatureStatus').className =
                             'text-sm text-green-600 font-medium';
+                        document.getElementById('tandaTangan').value = existingSignature;
                     };
                     img.src = existingSignature;
                 }
@@ -415,140 +448,219 @@
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
 
-            tabButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
+            // Function to activate a tab
+            function activateTab(tabId) {
+                // Remove active class from all tabs
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
+                    btn.classList.add('border-transparent', 'text-gray-500');
+                    btn.setAttribute('aria-selected', 'false');
+                });
 
-                    // Remove active class from all tabs
-                    tabButtons.forEach(btn => {
-                        btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
-                        btn.classList.add('border-transparent', 'text-gray-500');
-                        btn.setAttribute('aria-selected', 'false');
-                    });
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                });
 
-                    tabContents.forEach(content => {
-                        content.classList.remove('active');
-                    });
+                // Add active class to current tab
+                const activeButton = document.querySelector(`[data-tab="${tabId}"]`);
+                const activeContent = document.getElementById(tabId);
 
-                    // Add active class to current tab
-                    this.classList.add('active', 'border-blue-500', 'text-blue-600');
-                    this.classList.remove('border-transparent', 'text-gray-500');
-                    this.setAttribute('aria-selected', 'true');
-
-                    document.getElementById(tabId).classList.add('active');
+                if (activeButton && activeContent) {
+                    activeButton.classList.add('active', 'border-blue-500', 'text-blue-600');
+                    activeButton.classList.remove('border-transparent', 'text-gray-500');
+                    activeButton.setAttribute('aria-selected', 'true');
+                    activeContent.classList.add('active');
                     state.currentTab = tabId;
 
                     // Load questions for this tab if not already loaded
                     const kategoriId = tabId.replace('kategori-', '');
                     loadPertanyaan(kategoriId);
+                }
+            }
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    activateTab(tabId);
                 });
             });
 
-            // Load first tab by default
-            if (tabButtons.length > 0) {
-                tabButtons[0].click();
+            // Initialize first tab immediately after DOM is loaded
+            function initializeFirstTab() {
+                if (tabButtons.length > 0) {
+                    const firstTabId = tabButtons[0].getAttribute('data-tab');
+                    console.log('Initializing first tab:', firstTabId);
+                    activateTab(firstTabId);
+                }
             }
+
+            // Panggil inisialisasi tab pertama
+            initializeFirstTab();
 
             // Load pertanyaan berdasarkan kategori
             function loadPertanyaan(kategoriId) {
                 const pertanyaanSection = document.getElementById(`pertanyaan-section-${kategoriId}`);
+
+                if (!pertanyaanSection) {
+                    console.error('Pertanyaan section not found for kategori:', kategoriId);
+                    return;
+                }
+
                 const loadingState = pertanyaanSection.querySelector('.loading-state');
 
                 // Check if already loaded
                 if (pertanyaanSection.getAttribute('data-loaded') === 'true') {
+                    console.log('Pertanyaan already loaded for kategori:', kategoriId);
+                    if (loadingState) loadingState.style.display = 'none';
                     return;
                 }
+
+                console.log('Loading questions for kategori:', kategoriId);
+
+                // Show loading state
+                if (loadingState) loadingState.style.display = 'block';
 
                 fetch(`/pertanyaan/${kategoriId}`)
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('Network response was not ok');
+                            throw new Error(`Network response not ok: ${response.status}`);
                         }
                         return response.json();
                     })
                     .then(data => {
+                        console.log('Received questions for kategori:', kategoriId, data);
                         renderPertanyaan(kategoriId, data);
                         pertanyaanSection.setAttribute('data-loaded', 'true');
-                        loadingState.style.display = 'none';
+                        if (loadingState) loadingState.style.display = 'none';
+
+                        // Apply existing answers after rendering
+                        applyExistingAnswers(kategoriId);
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        loadingState.innerHTML = `
-                    <div class="text-center py-6 text-red-500">
-                        <i class="fas fa-exclamation-triangle text-2xl sm:text-3xl mb-2"></i>
-                        <p class="text-base sm:text-lg font-medium">Terjadi kesalahan</p>
-                        <p class="text-xs sm:text-sm">Gagal memuat pertanyaan. Silakan coba lagi.</p>
-                    </div>
-                `;
+                        console.error('Error loading questions:', error);
+                        if (loadingState) {
+                            loadingState.innerHTML = `
+                <div class="text-center py-6 text-red-500">
+                    <i class="fas fa-exclamation-triangle text-2xl sm:text-3xl mb-2"></i>
+                    <p class="text-base sm:text-lg font-medium">Terjadi kesalahan</p>
+                    <p class="text-xs sm:text-sm">Gagal memuat pertanyaan. Silakan coba lagi.</p>
+                    <button onclick="loadPertanyaan(${kategoriId})" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        Coba Lagi
+                    </button>
+                </div>
+            `;
+                        }
                     });
+            }
+
+            // PERBAIKAN: Fungsi baru untuk apply existing answers
+            function applyExistingAnswers(kategoriId) {
+                if (state.editMode) {
+                    setTimeout(() => {
+                        @foreach ($kategories as $kategori)
+                            // Only load if not the active tab (active tab is already loading)
+                            if (state.currentTab !== 'kategori-{{ $kategori->id }}') {
+                                loadPertanyaan({{ $kategori->id }});
+                            }
+                        @endforeach
+                    }, 1000);
+                }
+
+                const existingAnswers = state.existingAnswers[kategoriId];
+                if (!existingAnswers) return;
+
+                console.log('Applying existing answers for kategori', kategoriId, ':', existingAnswers);
+
+                Object.keys(existingAnswers).forEach(pertanyaanId => {
+                    const jawaban = existingAnswers[pertanyaanId];
+                    const radioButton = document.querySelector(
+                        `input[name="jawaban[${kategoriId}][${pertanyaanId}]"][value="${jawaban}"]`
+                    );
+
+                    if (radioButton) {
+                        radioButton.checked = true;
+                        console.log(`Set pertanyaan ${pertanyaanId} to ${jawaban}`);
+                    } else {
+                        console.warn(`Radio button not found for pertanyaan ${pertanyaanId}`);
+                    }
+                });
+
+                // Update category completion status
+                checkCategoryCompletion(kategoriId);
             }
 
             function renderPertanyaan(kategoriId, pertanyaans) {
                 const pertanyaanSection = document.getElementById(`pertanyaan-section-${kategoriId}`);
+
+                if (!pertanyaanSection) {
+                    console.error('Pertanyaan section not found for rendering:', kategoriId);
+                    return;
+                }
+
                 let html = '';
 
-                if (pertanyaans.length > 0) {
+                if (pertanyaans && pertanyaans.length > 0) {
                     pertanyaans.forEach((pertanyaan, index) => {
-                        // Check if we have a saved answer (from edit mode)
-                        const savedAnswer = state.jawaban[kategoriId] && state.jawaban[kategoriId][
-                            pertanyaan.id
-                        ];
-
                         html += `
-                    <div class="question-card bg-white p-3 sm:p-4 border border-gray-200 rounded-lg">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded mr-2">${index + 1}</span>
-                                    ${pertanyaan.pertanyaan}
-                                </label>
-                                <div class="flex items-center space-x-4 sm:space-x-6">
-                                    <label class="inline-flex items-center">
-                                        <input type="radio" 
-                                               name="jawaban[${kategoriId}][${pertanyaan.id}]" 
-                                               value="Ya" 
-                                               class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
-                                               ${savedAnswer === 'Ya' ? 'checked' : ''}
-                                               onchange="updateJawaban(${kategoriId}, ${pertanyaan.id}, 'Ya')">
-                                        <span class="ml-2 text-gray-700 font-medium flex items-center text-sm sm:text-base">
-                                            <i class="fas fa-check-circle mr-1 text-green-500"></i>
-                                            Ya
-                                        </span>
+                        <div class="question-card bg-white p-3 sm:p-4 border border-gray-200 rounded-lg">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+                                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded mr-2">${index + 1}</span>
+                                        ${pertanyaan.pertanyaan}
                                     </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="radio" 
-                                               name="jawaban[${kategoriId}][${pertanyaan.id}]" 
-                                               value="Tidak" 
-                                               class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
-                                               ${savedAnswer === 'Tidak' ? 'checked' : ''}
-                                               onchange="updateJawaban(${kategoriId}, ${pertanyaan.id}, 'Tidak')">
-                                        <span class="ml-2 text-gray-700 font-medium flex items-center text-sm sm:text-base">
-                                            <i class="fas fa-times-circle mr-1 text-red-500"></i>
-                                            Tidak
-                                        </span>
-                                    </label>
+                                    <div class="flex items-center space-x-4 sm:space-x-6">
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" 
+                                                name="jawaban[${kategoriId}][${pertanyaan.id}]" 
+                                                value="Ya" 
+                                                class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
+                                                onchange="updateJawaban(${kategoriId}, ${pertanyaan.id}, 'Ya')">
+                                            <span class="ml-2 text-gray-700 font-medium flex items-center text-sm sm:text-base">
+                                                <i class="fas fa-check-circle mr-1 text-green-500"></i>
+                                                Ya
+                                            </span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" 
+                                                name="jawaban[${kategoriId}][${pertanyaan.id}]" 
+                                                value="Tidak" 
+                                                class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
+                                                onchange="updateJawaban(${kategoriId}, ${pertanyaan.id}, 'Tidak')">
+                                            <span class="ml-2 text-gray-700 font-medium flex items-center text-sm sm:text-base">
+                                                <i class="fas fa-times-circle mr-1 text-red-500"></i>
+                                                Tidak
+                                            </span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
                     });
 
-                    // Auto-check category completion after rendering
-                    setTimeout(() => {
-                        checkCategoryCompletion(kategoriId);
-                    }, 100);
+                    console.log(`Rendered ${pertanyaans.length} questions for kategori:`, kategoriId);
                 } else {
+                    // PERBAIKAN: Gunakan URL dasar tanpa Blade directive
                     html = `
-                <div class="text-center py-6 text-gray-500">
-                    <i class="fas fa-clipboard-question text-gray-300 text-4xl sm:text-6xl mb-3"></i>
-                    <p class="text-base sm:text-lg font-medium">Tidak ada pertanyaan tersedia</p>
-                    <p class="text-xs sm:text-sm">Belum ada pertanyaan yang ditambahkan untuk kategori ini.</p>
-                </div>
-            `;
+                    <div class="text-center py-6 text-gray-500">
+                        <i class="fas fa-clipboard-question text-gray-300 text-4xl sm:text-6xl mb-3"></i>
+                        <p class="text-base sm:text-lg font-medium">Tidak ada pertanyaan tersedia</p>
+                        <p class="text-xs sm:text-sm">Belum ada pertanyaan yang ditambahkan untuk kategori ini.</p>
+                        <a href="/pertanyaan/${kategoriId}/edit" class="mt-3 inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition duration-200 text-sm">
+                            <i class="fas fa-plus mr-2"></i>
+                            Tambah Pertanyaan
+                        </a>
+                    </div>
+                `;
                 }
 
                 pertanyaanSection.innerHTML = html;
+
+                // Auto-check category completion after rendering
+                setTimeout(() => {
+                    checkCategoryCompletion(kategoriId);
+                }, 100);
             }
 
             // Global function to update answers
@@ -609,7 +721,7 @@
                 if (completedCategories === totalCategories) {
                     document.getElementById('progress-detail').textContent = 'Semua kategori telah diselesaikan!';
                     document.getElementById('progress-detail').className =
-                    'mt-2 text-xs text-green-600 font-medium';
+                        'mt-2 text-xs text-green-600 font-medium';
                 } else {
                     document.getElementById('progress-detail').textContent =
                         'Semua kategori harus diselesaikan sebelum submit';
@@ -718,6 +830,15 @@
             setTimeout(() => {
                 checkFormValidity();
             }, 1000);
+
+            // PERBAIKAN: Auto-load all categories in edit mode to apply existing answers
+            if (state.editMode) {
+                setTimeout(() => {
+                    @foreach ($kategories as $kategori)
+                        loadPertanyaan({{ $kategori->id }});
+                    @endforeach
+                }, 500);
+            }
         });
     </script>
 @endsection

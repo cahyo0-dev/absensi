@@ -83,14 +83,14 @@ class InspeksiExport implements FromCollection, WithHeadings, WithMapping, WithS
                 'font' => ['bold' => true, 'size' => 16],
                 'alignment' => ['horizontal' => 'center']
             ],
-            
+
             // Style untuk header informasi
             3 => ['font' => ['bold' => true]],
             4 => ['font' => ['bold' => true]],
             5 => ['font' => ['bold' => true]],
             6 => ['font' => ['bold' => true]],
             7 => ['font' => ['bold' => true]],
-            
+
             // Style untuk header tabel
             9 => [
                 'font' => ['bold' => true],
@@ -99,7 +99,7 @@ class InspeksiExport implements FromCollection, WithHeadings, WithMapping, WithS
                     'startColor' => ['argb' => 'FFE6E6FA']
                 ]
             ],
-            
+
             // Auto size columns
             'A' => ['width' => 10],
             'B' => ['width' => 50],
