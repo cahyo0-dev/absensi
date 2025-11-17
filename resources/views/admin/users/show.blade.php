@@ -18,22 +18,23 @@
                 </div>
             </div>
             <div class="flex space-x-3">
-                <a href="{{ route('admin.users.edit', $userDetail->id) }}" 
-                   class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition duration-200">
+                <a href="{{ route('admin.users.edit', $userDetail->id) }}"
+                    class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition duration-200">
                     <i class="fas fa-edit mr-2"></i>
                     Edit
                 </a>
-                @if($userDetail->id !== Auth::id())
-                <form action="{{ route('admin.users.destroy', $userDetail->id) }}" method="POST" class="inline" id="delete-form">
-                    @csrf
-                    @method('DELETE')
-                    <button type="button" 
+                @if ($userDetail->id !== Auth::id())
+                    <form action="{{ route('admin.users.destroy', $userDetail->id) }}" method="POST" class="inline"
+                        id="delete-form">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button"
                             class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
                             onclick="confirmDelete()">
-                        <i class="fas fa-trash mr-2"></i>
-                        Hapus
-                    </button>
-                </form>
+                            <i class="fas fa-trash mr-2"></i>
+                            Hapus
+                        </button>
+                    </form>
                 @endif
             </div>
         </div>
@@ -115,7 +116,8 @@
                     <div class="space-y-3">
                         <div>
                             <label class="text-sm font-medium text-gray-600">Role</label>
-                            <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold 
+                            <span
+                                class="inline-block px-3 py-1 rounded-full text-sm font-semibold 
                                 {{ $userDetail->role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800' }}">
                                 {{ ucfirst($userDetail->role) }}
                             </span>
@@ -142,61 +144,25 @@
                             <label class="text-sm font-medium text-gray-600">Total Inspeksi</label>
                             <p class="text-2xl font-bold text-gray-900">{{ $inspeksiCount }}</p>
                         </div>
-                        @if($userDetail->role === 'pengawas')
-                        <div class="bg-blue-50 p-4 rounded-lg">
-                            <p class="text-sm text-blue-700">
-                                <i class="fas fa-info-circle mr-1"></i>
-                                User ini adalah pengawas dengan akses form inspeksi dan laporan.
-                            </p>
-                        </div>
+                        @if ($userDetail->role === 'pengawas')
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <p class="text-sm text-blue-700">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    User ini adalah pengawas dengan akses form inspeksi dan laporan.
+                                </p>
+                            </div>
                         @else
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <p class="text-sm text-green-700">
-                                <i class="fas fa-info-circle mr-1"></i>
-                                User ini adalah admin dengan akses penuh ke sistem.
-                            </p>
-                        </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="text-sm text-green-700">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    User ini adalah admin dengan akses penuh ke sistem.
+                                </p>
+                            </div>
                         @endif
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <a href="{{ route('admin.users.edit', $userDetail->id) }}" 
-           class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-yellow-500">
-            <div class="flex items-center">
-                <i class="fas fa-edit text-yellow-500 text-xl mr-3"></i>
-                <div>
-                    <h4 class="font-semibold text-gray-800">Edit User</h4>
-                    <p class="text-sm text-gray-600">Ubah data user</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ route('admin.users') }}" 
-           class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-blue-500">
-            <div class="flex items-center">
-                <i class="fas fa-list text-blue-500 text-xl mr-3"></i>
-                <div>
-                    <h4 class="font-semibold text-gray-800">Daftar User</h4>
-                    <p class="text-sm text-gray-600">Lihat semua user</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ route('admin.users.create') }}" 
-           class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-l-4 border-green-500">
-            <div class="flex items-center">
-                <i class="fas fa-plus text-green-500 text-xl mr-3"></i>
-                <div>
-                    <h4 class="font-semibold text-gray-800">Tambah User</h4>
-                    <p class="text-sm text-gray-600">User baru</p>
-                </div>
-            </div>
-        </a>
     </div>
 @endsection
 
@@ -209,11 +175,11 @@
         }
 
         // Success message handling
-        @if(session('success'))
+        @if (session('success'))
             showNotification('{{ session('success') }}', 'success');
         @endif
 
-        @if(session('error'))
+        @if (session('error'))
             showNotification('{{ session('error') }}', 'error');
         @endif
 
@@ -229,7 +195,7 @@
                 </div>
             `;
             document.body.appendChild(notification);
-            
+
             setTimeout(() => {
                 notification.remove();
             }, 5000);

@@ -70,7 +70,6 @@ Route::prefix('pengawas')->name('pengawas.')->middleware('auth')->group(function
     Route::put('/inspeksi/{id}', [InspeksiController::class, 'update'])->name('inspeksi.update');
     Route::delete('/inspeksi/{id}', [InspeksiController::class, 'destroy'])->name('inspeksi.destroy');
 });
-
 // Admin routes
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     // Dashboard & Main Features
@@ -87,6 +86,15 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/users/{id}/edit', [AdminController::class, 'editUser'])->name('users.edit');
     Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('users.update');
     Route::delete('/users/{id}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+
+    // Tambahkan route CRUD untuk absensi di bagian admin
+    Route::get('/absensi', [AbsensiController::class, 'adminIndex'])->name('absensi.index');
+    Route::get('/absensi/create', [AbsensiController::class, 'create'])->name('absensi.create');
+    Route::post('/absensi', [AbsensiController::class, 'storeAdmin'])->name('absensi.store');
+    Route::get('/absensi/{id}', [AbsensiController::class, 'show'])->name('absensi.show');
+    Route::get('/absensi/{id}/edit', [AbsensiController::class, 'edit'])->name('absensi.edit');
+    Route::put('/absensi/{id}', [AbsensiController::class, 'update'])->name('absensi.update');
+    Route::delete('/absensi/{id}', [AbsensiController::class, 'destroy'])->name('absensi.destroy');
 
     // System Info & Bantuan
     Route::get('/system-info', [AdminController::class, 'systemInfo'])->name('system.info');

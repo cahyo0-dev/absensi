@@ -182,7 +182,7 @@
     <!-- Main Content -->
     <div class="min-h-screen" :class="sidebarOpen ? 'md:ml-64' : 'md:ml-20'">
         <!-- Top Header -->
-        <header class="bg-white shadow-sm border-b border-gray-200">
+        <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
             <div class="flex items-center justify-between px-6 py-4">
                 <!-- Left: Menu Button for Mobile -->
                 <div class="flex items-center space-x-4">

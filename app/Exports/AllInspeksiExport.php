@@ -3,57 +3,133 @@
 namespace App\Exports;
 
 use App\Models\Inspeksi;
-use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class AllInspeksiExport implements FromCollection, WithHeadings, WithMapping, WithStyles
+class AllInspeksiExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle
 {
+    protected $startDate;
+    protected $endDate;
+
+    public function __construct($startDate = null, $endDate = null)
+    {
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+    }
+
     public function collection()
     {
-        return Inspeksi::with(['kategori', 'jawaban', 'pengawas'])
-            ->where('pengawas_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = Inspeksi::with(['kategori', 'jawaban.pertanyaan', 'pengawas']);
+
+        if ($this->startDate && $this->endDate) {
+            $start = $this->startDate . ' 00:00:00';
+            $end = $this->endDate . ' 23:59:59';
+            $query->whereBetween('created_at', [$start, $end]);
+        }
+
+        return $query->orderBy('created_at', 'desc')->get();
     }
 
     public function headings(): array
     {
         return [
-            'TANGGAL',
-            'KATEGORI',
-            'LOKASI',
-            'JUMLAH PERTANYAAN',
-            'PENGAWAS',
-            'KETERANGAN'
+            'LAPORAN SEMUA DATA INSPEKSI',
+            '',
+            '',
+            '',
+            '',
+            ''
         ];
     }
 
     public function map($inspeksi): array
     {
-        return [
-            $inspeksi->created_at->format('d/m/Y H:i'),
-            $inspeksi->kategori->nama ?? 'Semua Kategori',
-            $inspeksi->lokasi ?? '-',
-            $inspeksi->jawaban->count(),
-            $inspeksi->pengawas->name ?? '-',
-            $inspeksi->keterangan ?? '-'
-        ];
+        $data = [];
+
+        $createdAt = $inspeksi->created_at->timezone('Asia/Kuala_Lumpur');
+
+        // Header Laporan
+        $data[] = ['LAPORAN SEMUA DATA INSPEKSI'];
+        $data[] = []; // Empty row
+
+        // Informasi Periode
+        if ($this->startDate && $this->endDate) {
+            $data[] = ['Periode', $this->startDate . ' hingga ' . $this->endDate];
+        }
+        $data[] = ['Tanggal Export', now()->format('d/m/Y H:i')];
+        $data[] = ['Total Data', $this->collection()->count()];
+        $data[] = []; // Empty row
+
+        // Informasi Inspeksi
+        $data[] = ['Tanggal Inspeksi', $inspeksi->created_at->format('d/m/Y H:i')];
+        $data[] = ['Kategori Inspeksi', $inspeksi->kategori->nama ?? 'Semua Kategori'];
+        $data[] = ['Keterangan', $inspeksi->keterangan ?? 'Selesai'];
+        $data[] = ['Pengawas', $inspeksi->pengawas->name ?? '-'];
+        $data[] = []; // Empty row
+
+        // Header Tabel Jawaban
+        $data[] = ['NO', 'PERTANYAAN', 'JAWABAN'];
+
+        // Data Jawaban
+        $no = 1;
+        foreach ($inspeksi->jawaban as $jawaban) {
+            $data[] = [
+                $no++,
+                $jawaban->pertanyaan->pertanyaan ?? 'Pertanyaan tidak ditemukan',
+                $jawaban->jawaban
+            ];
+        }
+
+        $data[] = []; // Empty row
+        $data[] = ['Total Pertanyaan', $inspeksi->jawaban->count()];
+        $data[] = []; // Empty row
+        $data[] = []; // Empty row
+        $data[] = ['--- BATAS DATA INSPEKSI ---'];
+        $data[] = []; // Empty row
+        $data[] = []; // Empty row
+
+        return $data;
     }
 
     public function styles(Worksheet $sheet)
     {
         return [
+            // Style untuk judul utama
             1 => [
+                'font' => ['bold' => true, 'size' => 16],
+                'alignment' => ['horizontal' => 'center']
+            ],
+
+            // Style untuk header informasi
+            3 => ['font' => ['bold' => true]],
+            4 => ['font' => ['bold' => true]],
+            5 => ['font' => ['bold' => true]],
+            7 => ['font' => ['bold' => true]],
+            8 => ['font' => ['bold' => true]],
+            9 => ['font' => ['bold' => true]],
+            10 => ['font' => ['bold' => true]],
+
+            12 => [
                 'font' => ['bold' => true],
                 'fill' => [
                     'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                     'startColor' => ['argb' => 'FFE6E6FA']
                 ]
             ],
+
+            // Auto size columns
+            'A' => ['width' => 10],
+            'B' => ['width' => 50],
+            'C' => ['width' => 20],
         ];
+    }
+
+    public function title(): string
+    {
+        return 'Laporan Inspeksi';
     }
 }

@@ -107,7 +107,7 @@
         </div>
 
         <!-- Navigation Menu -->
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto ">
             <!-- Dashboard -->
             <a href="{{ route('admin.dashboard') }}"
                 class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-blue-700 hover-lift group {{ request()->routeIs('admin.dashboard') ? 'active-sidebar-item' : '' }}">
@@ -181,7 +181,7 @@
     <!-- Main Content -->
     <div class="min-h-screen" :class="sidebarOpen ? 'md:ml-64' : 'md:ml-20'">
         <!-- Top Header -->
-        <header class="bg-white shadow-sm border-b border-gray-200">
+        <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
             <div class="flex items-center justify-between px-6 py-4">
                 <!-- Left: Menu Button for Mobile -->
                 <div class="flex items-center space-x-4">

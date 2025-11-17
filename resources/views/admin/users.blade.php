@@ -10,11 +10,11 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-blue-100 text-sm">Total Users</p>
+                    <p class="text-blue-100 text-sm">Total User</p>
                     <p class="text-2xl font-bold mt-1">{{ $users->count() }}</p>
                 </div>
                 <div class="p-3 bg-blue-400 rounded-lg">
@@ -46,36 +46,24 @@
                 </div>
             </div>
         </div>
-
-        <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-orange-100 text-sm">Regular Users</p>
-                    <p class="text-2xl font-bold mt-1">{{ $users->where('role', 'user')->count() }}</p>
-                </div>
-                <div class="p-3 bg-orange-400 rounded-lg">
-                    <i class="fas fa-user text-xl"></i>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Action Buttons & Search -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-8">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+    <div class="bg-white rounded-lg md:rounded-xl shadow-md border border-gray-100 mb-6">
+        <div class="px-4 md:px-6 py-4 border-b border-gray-200">
+            <div class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between">
                 <h3 class="text-lg font-semibold text-gray-800 flex items-center">
                     <i class="fas fa-list mr-2 text-blue-600"></i>
                     Daftar Users ({{ $users->count() }})
                 </h3>
-                <div class="flex space-x-3 mt-4 md:mt-0">
-                    <div class="relative">
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <div class="relative flex-1">
                         <input type="text" placeholder="Cari user..."
-                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     </div>
                     <a href="{{ route('admin.users.create') }}"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center justify-center whitespace-nowrap text-sm">
                         <i class="fas fa-plus mr-2"></i>
                         Tambah User
                     </a>
@@ -205,17 +193,18 @@
                                         title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    @if($user->id !== Auth::id())
-                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="text-red-600 hover:text-red-900 transition duration-150 p-2 rounded-lg hover:bg-red-50"
-                                            title="Delete User"
-                                            onclick="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    @if ($user->id !== Auth::id())
+                                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
+                                            class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="text-red-600 hover:text-red-900 transition duration-150 p-2 rounded-lg hover:bg-red-50"
+                                                title="Delete User"
+                                                onclick="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
                                     @endif
                                 </div>
                             </td>

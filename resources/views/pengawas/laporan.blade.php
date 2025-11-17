@@ -87,37 +87,55 @@
                 </div>
             </div>
 
-            <!-- Export Preset Cepat -->
+            <!-- Export Preset Cepat - PERBAIKAN: Grid 4 kolom untuk desktop, 2 kolom untuk mobile -->
             <div class="mb-6">
                 <h3 class="text-md font-medium text-gray-900 mb-3 flex items-center">
                     <i class="fas fa-bolt mr-2 text-yellow-500"></i>
                     Export Cepat
                 </h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 export-preset-grid">
-                    <a href="{{ route('pengawas.inspeksi.export.preset', 'week') }}"
-                        class="export-btn inline-flex items-center justify-center px-3 sm:px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-150 text-sm"
-                        onclick="showExportLoading(this)">
-                        <i class="fas fa-calendar-week mr-2"></i>
-                        1 Minggu
-                    </a>
-                    <a href="{{ route('pengawas.inspeksi.export.preset', 'month') }}"
-                        class="export-btn inline-flex items-center justify-center px-3 sm:px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-150 text-sm"
-                        onclick="showExportLoading(this)">
-                        <i class="fas fa-calendar-alt mr-2"></i>
-                        1 Bulan
-                    </a>
-                    <a href="{{ route('pengawas.inspeksi.export.preset', 'year') }}"
-                        class="export-btn inline-flex items-center justify-center px-3 sm:px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition duration-150 text-sm"
-                        onclick="showExportLoading(this)">
-                        <i class="fas fa-calendar mr-2"></i>
-                        1 Tahun
-                    </a>
-                    <a href="{{ route('pengawas.inspeksi.export.all') }}"
-                        class="export-btn inline-flex items-center justify-center px-3 sm:px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition duration-150 text-sm"
-                        onclick="showExportLoading(this)">
-                        <i class="fas fa-database mr-2"></i>
-                        Semua Data
-                    </a>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <form method="GET" action="{{ route('pengawas.inspeksi.export.preset', 'week') }}"
+                        class="flex flex-col">
+                        <button type="submit"
+                            class="export-btn bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center space-x-3 hover:shadow-lg">
+                            <i class="fas fa-calendar-week text-lg"></i>
+                            <div class="text-left flex-1">
+                                <div class="font-semibold text-sm">1 Minggu</div>
+                            </div>
+                        </button>
+                    </form>
+
+                    <form method="GET" action="{{ route('pengawas.inspeksi.export.preset', 'month') }}"
+                        class="flex flex-col">
+                        <button type="submit"
+                            class="export-btn bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center space-x-3 hover:shadow-lg">
+                            <i class="fas fa-calendar-alt text-lg"></i>
+                            <div class="text-left flex-1">
+                                <div class="font-semibold text-sm">1 Bulan</div>
+                            </div>
+                        </button>
+                    </form>
+
+                    <form method="GET" action="{{ route('pengawas.inspeksi.export.preset', 'year') }}"
+                        class="flex flex-col">
+                        <button type="submit"
+                            class="export-btn bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center space-x-3 hover:shadow-lg">
+                            <i class="fas fa-calendar text-lg"></i>
+                            <div class="text-left flex-1">
+                                <div class="font-semibold text-sm">1 Tahun</div>
+                            </div>
+                        </button>
+                    </form>
+
+                    <form method="GET" action="{{ route('pengawas.inspeksi.export.all') }}" class="flex flex-col">
+                        <button type="submit"
+                            class="export-btn bg-purple-500 hover:bg-purple-600 text-white py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center space-x-3 hover:shadow-lg">
+                            <i class="fas fa-database text-lg"></i>
+                            <div class="text-left flex-1">
+                                <div class="font-semibold text-sm">Semua Data</div>
+                            </div>
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -693,7 +711,7 @@
             setTimeout(() => {
                 button.innerHTML = originalText;
                 button.disabled = false;
-            }, 3000);
+            }, 2000);
         }
 
         // Untuk export custom range

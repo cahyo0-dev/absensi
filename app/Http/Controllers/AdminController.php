@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AbsensiExport;
+use App\Exports\AllInspeksiExport;
 use App\Exports\InspeksiExport;
 use App\Exports\UsersExport;
 
@@ -231,20 +232,26 @@ class AdminController extends Controller
             'environment' => config('app.env'),
         ];
 
-        // Log aktivitas terbaru (contoh sederhana)
-        $recentActivities = Inspeksi::with('pengawas')
+        $absensiTerbaru = Absensi::with('user')
             ->orderBy('created_at', 'desc')
             ->take(5)
-            ->get()
-            ->map(function ($inspeksi) {
-                return [
-                    'message' => "Inspeksi oleh {$inspeksi->pengawas->name}",
-                    'time' => $inspeksi->created_at->diffForHumans(),
-                    'type' => 'inspeksi'
-                ];
-            });
+            ->get();
 
-        return view('admin.system-info', compact('user', 'stats', 'serverInfo', 'recentActivities'));
+        $inspeksiTerbaru = Inspeksi::with(['pengawas', 'kategori'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $aktivitasTerbaru = $absensiTerbaru->concat($inspeksiTerbaru)
+            ->sortByDesc('created_at')
+            ->take(5);
+
+        return view('admin.system-info', compact(
+            'user',
+            'stats',
+            'serverInfo',
+            'aktivitasTerbaru'
+        ));
     }
 
     // **BANTUAN SEDERHANA** untuk admin - FAQ saja
@@ -296,9 +303,9 @@ class AdminController extends Controller
                 ) {
                     $startDate = $request->start_date . ' 00:00:00';
                     $endDate = $request->end_date . ' 23:59:59';
-                    $queryAbsensi->whereBetween('created_at', [$startDate, $endDate]);
+                    $queryAbsensi->whereBetween('waktu_masuk', [$startDate, $endDate]);
                 }
-                $absensis = $queryAbsensi->latest()->get();
+                $absensis = $queryAbsensi->orderBy('waktu_masuk', 'desc')->get();
             } catch (\Exception $e) {
                 $absensis = new Collection();
             }
@@ -377,37 +384,12 @@ class AdminController extends Controller
 
             switch ($type) {
                 case 'absensi':
-                    $query = Absensi::query();
-                    if ($startDate && $endDate) {
-                        $start = $startDate . ' 00:00:00';
-                        $end = $endDate . ' 23:59:59';
-                        $query->whereBetween('created_at', [$start, $end]);
-                    }
-                    $data = $query->get();
-
-                    if ($data->isEmpty()) {
-                        return redirect()->back()->with('error', 'Tidak ada data absensi untuk diekspor.');
-                    }
-
-                    return Excel::download(new AbsensiExport($data), $filename);
+                    // Gunakan AbsensiExport dengan parameter tanggal
+                    return Excel::download(new AbsensiExport($startDate, $endDate), $filename);
 
                 case 'inspeksi':
-                    // Untuk export inspeksi, kita perlu mengambil SATU inspeksi
-                    $query = Inspeksi::query();
-                    if ($startDate && $endDate) {
-                        $start = $startDate . ' 00:00:00';
-                        $end = $endDate . ' 23:59:59';
-                        $query->whereBetween('created_at', [$start, $end]);
-                    }
-
-                    // Ambil inspeksi pertama yang ditemukan
-                    $inspeksi = $query->with(['pengawas', 'kategori', 'jawaban.pertanyaan'])->first();
-
-                    if (!$inspeksi) {
-                        return redirect()->back()->with('error', 'Tidak ada data inspeksi untuk diekspor.');
-                    }
-
-                    return Excel::download(new InspeksiExport($inspeksi), $filename);
+                    // Gunakan AllInspeksiExport untuk semua data inspeksi
+                    return Excel::download(new AllInspeksiExport($startDate, $endDate), $filename);
 
                 case 'users':
                     $query = User::query();
@@ -428,7 +410,7 @@ class AdminController extends Controller
                     return redirect()->back()->with('error', 'Tipe export tidak valid.');
             }
         } catch (\Exception $e) {
-            Log::error('Export error: ' . $e->getMessage()); // ✅ DIPERBAIKI: \Log -> Log
+            Log::error('Export error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal melakukan export: ' . $e->getMessage());
         }
     }
@@ -440,17 +422,15 @@ class AdminController extends Controller
 
             switch ($type) {
                 case 'absensi':
-                    return Excel::download(new AbsensiExport(null, null), $filename);
+                    return Excel::download(new AbsensiExport(), $filename);
                 case 'inspeksi':
-                    return Excel::download(new InspeksiExport(null, null), $filename);
+                    // Gunakan AllInspeksiExport tanpa parameter untuk semua data
+                    return Excel::download(new AllInspeksiExport(), $filename);
                 case 'users':
-                    return Excel::download(new UsersExport(null, null), $filename);
+                    return Excel::download(new UsersExport(User::all()), $filename);
                 default:
                     return redirect()->back()->with('error', 'Tipe export tidak valid.');
             }
-
-            // ❌ HAPUS BARIS INI (tidak akan pernah dieksekusi)
-            // return redirect()->back()->with('success', 'Fitur export akan segera tersedia.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal melakukan export: ' . $e->getMessage());
         }
