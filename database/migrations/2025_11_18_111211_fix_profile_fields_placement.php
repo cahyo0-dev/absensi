@@ -13,15 +13,13 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // HAPUS kolom yang tidak dipakai jika ada
-            if (Schema::hasColumn('users', 'profile_photo')) {
-                $table->dropColumn('profile_photo');
-            }
-            if (Schema::hasColumn('users', 'phone')) {
-                $table->dropColumn('phone');
-            }
+            $columnsToDrop = ['profile_photo', 'phone'];
 
-            // Atau jika mau TAMBAH kolom yang diperlukan (tanpa after())
-            // $table->string('nama_kolom_baru')->nullable();
+            foreach ($columnsToDrop as $column) {
+                if (Schema::hasColumn('users', $column)) {
+                    $table->dropColumn($column);
+                }
+            }
         });
     }
 
@@ -31,7 +29,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            // Jika perlu rollback, tambahkan kembali kolom yang dihapus
+            // Untuk rollback, tambahkan kembali kolom
             // $table->string('profile_photo')->nullable();
             // $table->string('phone')->nullable();
         });
