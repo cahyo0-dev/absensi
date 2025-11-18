@@ -1,0 +1,23 @@
+[
+    {
+        "id": 1,
+        "nama": "Kebersihan Lingkungan Kerja",
+        "deskripsi": "Pemeriksaan kebersihan area kerja",
+        "created_at": "2025-10-21 01:26:04",
+        "updated_at": "2025-10-21 01:26:04"
+    },
+    {
+        "id": 2,
+        "nama": "Pemeliharaan Toilet",
+        "deskripsi": "Pemeriksaan kondisi toilet",
+        "created_at": "2025-10-21 01:26:04",
+        "updated_at": "2025-10-21 01:26:04"
+    },
+    {
+        "id": 3,
+        "nama": "Pemeliharaan Halaman\/Parkir",
+        "deskripsi": "Pemeriksaan area halaman dan parkir",
+        "created_at": "2025-10-21 01:26:04",
+        "updated_at": "2025-10-21 01:26:04"
+    }
+]
