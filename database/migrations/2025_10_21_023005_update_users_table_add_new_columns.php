@@ -9,12 +9,13 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            // Tambahkan kolom baru
-            
-            // Hapus kolom email_verified_at jika tidak diperlukan
-            // $table->dropColumn('email_verified_at');
-            
-            // Ubah kolom name jika perlu
+            // TAMBAH kolom yang missing
+            $table->string('nip')->nullable();
+            $table->string('jabatan')->nullable();
+            $table->string('unit_kerja')->nullable();
+            $table->string('provinsi')->nullable();
+
+            // Ubah kolom name menjadi nullable
             $table->string('name')->nullable()->change();
         });
     }
@@ -22,9 +23,11 @@ return new class extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['nip', 'jabatan', 'unit_kerja', 'provinsi', 'role']);
-            // Kembalikan kolom name jika diubah
-            $table->string('name')->change();
+            // Hapus kolom yang ditambahkan
+            $table->dropColumn(['nip', 'jabatan', 'unit_kerja', 'provinsi']);
+
+            // Kembalikan kolom name ke not nullable
+            $table->string('name')->nullable(false)->change();
         });
     }
 };
